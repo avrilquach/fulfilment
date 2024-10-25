@@ -40,14 +40,12 @@ export async function POST(req) {
     status,
     fill_date,
     bu,
-    zone,
-    shelve_id,
     tat_sku,
     container_rfid,
   } = await req.json();
 
   // Kiểm tra xem tất cả các trường đã được cung cấp
-  if (!name || !qty_container || !unit || !status || !fill_date || !bu || !zone || !shelve_id || !tat_sku || !container_rfid) {
+  if (!name || !qty_container || !unit || !status || !fill_date || !bu || !tat_sku || !container_rfid) {
     return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
   }
 
@@ -61,26 +59,17 @@ export async function POST(req) {
     );
 
     if (existingContainer.length > 0) {
-      return NextResponse.json({ message: 'Container RFID already exists' }, { status: 409 });
+        return NextResponse.json({ message: `Container RFID ${container_rfid} already exists` }, { status: 409 });
     }
 
-    // Kiểm tra xem bin có tồn tại với shelve_id tương ứng không
-    const [existingBin] = await connection.execute(
-      'SELECT used_bins FROM shelve WHERE id = ?',
-      [shelve_id]
+    // Thực hiện truy vấn để chèn dữ liệu vào bảng parts_list
+    const [result] = await connection.execute(
+      'INSERT INTO parts_list (name, qty_container, unit, status, fill_date, bu, zone, shelve_id, bin, tat_sku, container_rfid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, qty_container, unit, status, fill_date, bu, '', '', '', tat_sku, container_rfid]
     );
-    let newBin = "Bin";
-    if (existingBin.length > 0 && existingBin[0].used_bins !== null) {
-       newBin =  "Bin "+parseInt(existingBin[0].used_bins+1);
-		  // Thực hiện truy vấn để chèn dữ liệu vào bảng parts_list
-		  const [result] = await connection.execute(
-		    'INSERT INTO parts_list (name, qty_container, unit, status, fill_date, bu, zone, shelve_id, bin, tat_sku, container_rfid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-		    [name, qty_container, unit, status, fill_date, bu, zone, shelve_id, newBin, tat_sku, container_rfid]
-		  );
 
-		  // Gửi phản hồi
-		  return NextResponse.json({ message: 'Part saved successfully', id: result.insertId }, { status: 201 });
-    }
+    // Gửi phản hồi
+    return NextResponse.json({ message: 'Part saved successfully', id: result.insertId }, { status: 201 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: 'Something went wrong' }, { status: 500 });
