@@ -31,8 +31,8 @@ const Header = () => {
     <header className="bg-[#232f3e] text-white p-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">{user.company_name}</h1>
-          <h2 className="text-sm">C-part management - BU & Zone view</h2>
+          <h1 className="text-3xl font-bold text-white">{user.company_name}</h1>
+          <h2 className="text-sm text-white">C-part management - BU & Zone view</h2>
         </div>
         <div className="flex flex-col items-end">
           <button

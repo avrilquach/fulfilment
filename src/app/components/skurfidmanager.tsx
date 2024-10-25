@@ -27,7 +27,6 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
     qty_per_container: number;
     unit: string;
     active: number;
-    zone: string | null;
     bu: string | null;
   } | null>(null);
 
@@ -57,7 +56,6 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
           qty_per_container: sku.qty_per_container,
           unit: sku.unit,
           active: sku.active,
-          zone: sku.zone,
           bu: sku.bu,
         })));
       } catch (err:any) {
@@ -80,7 +78,6 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
         qty_per_container: selectedSkuItem.qty_per_container,
         unit: selectedSkuItem.unit,
         active: selectedSkuItem.active,
-        zone: selectedSkuItem.zone,
         bu: selectedSkuItem.bu,
       });
     } else {
@@ -119,69 +116,34 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
     const selectedSkuQty = selectedSkuDetails ? selectedSkuDetails.qty_per_container : '';
     const selectedSkuUnit = selectedSkuDetails ? selectedSkuDetails.unit : '';
     const selectedSkuBu = selectedSkuDetails ? selectedSkuDetails.bu : '';
-    const selectedSkuZone = selectedSkuDetails ? selectedSkuDetails.zone : '';
 
     setSaving(true); // Bắt đầu loading khi lưu
 
     // Lặp qua từng RFID
     for (const rfid of rfidArray) {
       try {
-        // Fetch Shelves List
-        const shelvesResponse = await fetch('/api/shelves', {
-          method: 'GET',
+        const response = await fetch('/api/parts', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({
+            name: selectedSkuName, // Lưu thông tin SKU name
+            qty_container: selectedSkuQty,
+            unit: selectedSkuUnit,
+            status: "empty", // Giả sử bạn có thông tin này từ state
+            fill_date: new Date().toISOString(), // Ngày điền
+            bu: selectedSkuBu, // Giả sử bạn có thông tin này từ state
+            tat_sku: tat_sku,
+            container_rfid: rfid, // Hoặc tên biến khác tùy theo yêu cầu
+          }),
         });
-        if (!shelvesResponse.ok) {
-          alert('All bins on the shelf have been utilized.');
-        }
-        const shelvesData = await shelvesResponse.json();
-        if(shelvesData){
-          const response = await fetch('/api/parts', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              name: selectedSkuName, // Lưu thông tin SKU name
-              qty_container: selectedSkuQty,
-              unit: selectedSkuUnit,
-              status: "empty", // Giả sử bạn có thông tin này từ state
-              fill_date: new Date().toISOString(), // Ngày điền
-              bu: selectedSkuBu, // Giả sử bạn có thông tin này từ state
-              zone: selectedSkuZone, // Giả sử bạn có thông tin này từ state
-              shelve_id: shelvesData.rows[0].id, // ID của shelve (có thể lưu từ state)
-              tat_sku: tat_sku,
-              container_rfid: rfid, // Hoặc tên biến khác tùy theo yêu cầu
-            }),
-          });
-          if (!response.ok) {
-            const errorData = await response.json();
-            alert(errorData.message);
-          } else {
-            const data = await response.json();
-            console.log('Saved Part:', data);
-            // Cập nhật số lượng bins đã sử dụng trong shelve
-            try {
-              const updateResponse = await fetch(`/api/shelves/`, { // API giả định để cập nhật shelve
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ shelve_id: shelvesData.rows[0].id }), // Tăng số bins đã sử dụng
-              });
-
-              if (!updateResponse.ok) {
-                const errorData = await updateResponse.json();
-                console.error('Error updating shelve:', errorData.message);
-              } else {
-                console.log('Shelve updated successfully');
-              }
-            } catch (error) {
-              console.error('Error updating shelve:', error);
-            }
-          }
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert(errorData.message);
+        } else {
+          const data = await response.json();
+          console.log('Saved Part:', data);
         }
       } catch (error) {
         console.error('Error saving part:', error);
@@ -216,6 +178,20 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
           onChange={handleSkuChange}
           options={skuList}
           placeholder="Select SKU Code"
+        />
+      </div>
+
+      {/* Label và Input cho tên sản phẩm */}
+      <div className="mb-6">
+        <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-2">
+          Product Name
+        </label>
+        <input
+          id="productName"
+          type="text"
+          value={selectedSkuDetails?.name || ''} // Gán tên sản phẩm từ selectedSkuDetails
+          readOnly
+          className="block w-full border border-gray-300 rounded-md p-3 bg-gray-100"
         />
       </div>
 
