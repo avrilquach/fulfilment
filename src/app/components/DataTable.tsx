@@ -1,22 +1,25 @@
 // DataTable.tsx
-
+'use client';
 import React, {useState} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 import SelectedRow from './SelectedRow'; // Import SelectedRow component
 
 interface TableRow {
-  cm_part_id: number;
+  id: number;
+  cm_part_id: string;
+  tat_sku: string;
   name: string;
   qty_container: number;
   unit: string;
   status: string;
   fill_date: string;
   bu: string;
-  zone: string;
+  zone_id: string;
+  zone_name:string;
   shelve_id: string;
-  bin: string;
-  tat_sku: string;
+  bin_id: string;
+  bin_name:string;
   container_rfid: string;
 }
 
@@ -80,9 +83,9 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
               <td className="py-2 px-4 border-b">{row.status}</td>
               <td className="py-2 px-4 border-b">{moment(row.fill_date).format('DD/MM/YYYY')}</td>
               <td className="py-2 px-4 border-b">{row.bu}</td>
-              <td className="py-2 px-4 border-b">{row.zone}</td>
+              <td className="py-2 px-4 border-b">{row.zone_name}</td>
               <td className="py-2 px-4 border-b">{row.shelve_id}</td>
-              <td className="py-2 px-4 border-b">{row.bin}</td>
+              <td className="py-2 px-4 border-b">{row.bin_name}</td>
               <td className="py-2 px-4 border-b">{row.container_rfid}</td>
             </tr>
           ))

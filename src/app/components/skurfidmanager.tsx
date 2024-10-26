@@ -128,6 +128,7 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+            cm_part_id: '123',
             name: selectedSkuName, // Lưu thông tin SKU name
             qty_container: selectedSkuQty,
             unit: selectedSkuUnit,
@@ -136,6 +137,7 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
             bu: selectedSkuBu, // Giả sử bạn có thông tin này từ state
             tat_sku: tat_sku,
             container_rfid: rfid, // Hoặc tên biến khác tùy theo yêu cầu
+            created_at:  new Date().toISOString(),
           }),
         });
         if (!response.ok) {

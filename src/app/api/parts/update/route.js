@@ -3,48 +3,28 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req) {
   const {
-    cm_part_id,
-    zone_id,
-    shelve_id,
-    bin_id,
+    id,
     container_rfid,
   } = await req.json();
 
   // Kiểm tra xem tất cả các trường đã được cung cấp
-  if (!cm_part_id || !zone_id || !shelve_id || !bin_id || !container_rfid ) {
+  if (!id ) {
     return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
   }
 
   try {
     const connection = await getConnection();
 
-    const zoneQuery = 'SELECT name FROM zone WHERE id = ?';
-    const [zoneRows] = await connection.execute(zoneQuery, [zone_id]);
-
-    if (zoneRows.length === 0) {
-      return NextResponse.json({ message: 'Zone ID not found' }, { status: 404 });
-    }
-
-    const binQuery = 'SELECT name FROM bin WHERE id = ?';
-    const [binRows] = await connection.execute(zoneQuery, [bin_id]);
-
-    if (binRows.length === 0) {
-      return NextResponse.json({ message: 'Bin ID not found' }, { status: 404 });
-    }
-
-		// SQL query to update the existing record
+ 		// SQL query to update the existing record
     const query = `
       UPDATE parts_list
       SET
-        zone = ?,
-        shelve_id = ?,
-        bin = ?,
         container_rfid = ?
-      WHERE cm_part_id = ?
+      WHERE id = ?
     `;
 
     // Execute the query with the provided values
-    const [result] = await connection.execute(query, [zoneRows[0].name, shelve_id, binRows[0].name, container_rfid, cm_part_id]);
+    const [result] = await connection.execute(query,[container_rfid, id]);
 
     // Check if the update was successful
     if (result.affectedRows > 0) {

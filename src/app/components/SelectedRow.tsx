@@ -1,11 +1,11 @@
 // SelectedRow.tsx
-
 import React, {useEffect, useState} from 'react';
 import moment from 'moment';
 
 interface SelectedRowProps {
   row: {
-    cm_part_id: number;
+    id: number;
+    cm_part_id: string;
     tat_sku: string;
     name: string;
     qty_container: number;
@@ -13,25 +13,28 @@ interface SelectedRowProps {
     status: string;
     fill_date: string;
     bu: string;
-    zone: string;
+    zone_id: string;
+    zone_name:string;
     shelve_id: string;
-    bin: string;
+    bin_id: string;
+    bin_name:string;
     container_rfid: string;
   };
 }
 
 const SelectedRow: React.FC<SelectedRowProps> = ({ row }) => {
   const [zones, setZones] = useState<{ id: number; name: string }[]>([]);
-  const [selectedZone, setSelectedZone] = useState<string>(row.zone); // Set initial selected zone
+  const [selectedZone, setSelectedZone] = useState<string>(); // Set initial selected zone
   const [shelves, setShelves] = useState<any[]>([]);
-  const [selectedShelveId, setSelectedShelveId] = useState<string>(row.shelve_id);
+  const [selectedShelveId, setSelectedShelveId] = useState<string>();
   const [bins, setBins] = useState<{ id: number; name: string }[]>([]);
-  const [selectedBinId, setSelectedBinId] = useState<string>(row.bin);
+  const [selectedBinId, setSelectedBinId] = useState<string>();
   const [containerRfid, setContainerRfid] = useState(row.container_rfid); // State for Container RFID
   const [partsRfid, setPartsRfid] = useState<string[]>([]); // State for Parts RFID as an array
+  const [selectedPartId, setSelectedPartId] = useState<string>(row.cm_part_id);
 
   useEffect(() => {
-    const fetchData = async () => {
+    /*const getDataZone = async () => {
       try {
         const resZone = await fetch('/api/zone', {
           method: 'GET',
@@ -40,12 +43,43 @@ const SelectedRow: React.FC<SelectedRowProps> = ({ row }) => {
           },
         });
         const dataZone = await resZone.json();
-        setZones(dataZone.rows);
+        //setZones(dataZone.rows);
       } catch (err:any) {
         console.log(err.message);
       }
     };
-    fetchData();
+    getDataZone();
+    const getDataShelve = async () => {
+       // Fetch shelves based on the selected zone
+       try {
+         const response = await fetch(`/api/shelves?zoneId=${selectedZone}`, {
+           method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+         const data = await response.json();
+        setShelves(data.rows); // Ensure that response.data is an array of shelves
+       } catch (error) {
+        console.error('Error fetching shelves:', error);
+       }
+     };
+     getDataShelve();
+     const getDataBin = async () => {
+       try {
+         const response = await fetch(`/api/bin?shelveId=${selectedShelveId}`, {
+           method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+           },
+         });
+         const data = await response.json();
+         setBins(data.rows);
+      } catch (error) {
+         console.error('Error fetching bin:', error);
+       }
+     };
+     getDataBin();*/
     const getpartsRfid= async () => {
       try {
         const reponse = await fetch('/api/parts/rfid', {
@@ -108,7 +142,7 @@ const SelectedRow: React.FC<SelectedRowProps> = ({ row }) => {
       return; // Exit the function to prevent saving
     }
 
-    // Check required fields
+    /*// Check required fields
     if (!selectedZone) {
       alert("Please select a zone.");
       return; // Exit if zone is not selected
@@ -122,14 +156,11 @@ const SelectedRow: React.FC<SelectedRowProps> = ({ row }) => {
     if (!selectedBinId) {
       alert("Please select a bin.");
       return; // Exit if bin is not selected
-    }
+    }*/
 
     // Prepare data for the API call
     const dataToSave = {
-      cm_part_id: row.cm_part_id,
-      zone_id: selectedZone,
-      shelve_id: selectedShelveId,
-      bin_id: selectedBinId,
+      id: row.id,
       container_rfid: containerRfid,
     };
 
@@ -146,6 +177,7 @@ const SelectedRow: React.FC<SelectedRowProps> = ({ row }) => {
       const result = await response.json();
       if (response.ok) {
         alert(result.message);
+        window.location.href = window.location.href;
       } else {
         alert(result.message);
       }
@@ -156,98 +188,136 @@ const SelectedRow: React.FC<SelectedRowProps> = ({ row }) => {
   };
 
   return (
-    <div className="mb-4">
-      <table className="min-w-full bg-white border border-gray-200">
-        <thead>
-        <tr className="bg-gray-200">
-          <th className="py-2 px-4 border-b text-left">CM Part ID</th>
-          <th className="py-2 px-4 border-b text-left">TAT SKU</th>
-          <th className="py-2 px-4 border-b text-left">Name</th>
-          <th className="py-2 px-4 border-b text-left">Qty/Container</th>
-          <th className="py-2 px-4 border-b text-left">Unit</th>
-          <th className="py-2 px-4 border-b text-left">Status</th>
-          <th className="py-2 px-4 border-b text-left">Fill Date</th>
-          <th className="py-2 px-4 border-b text-left">BU</th>
-          <th className="py-2 px-4 border-b text-left">Zone</th>
-          <th className="py-2 px-4 border-b text-left">Shelve ID</th>
-          <th className="py-2 px-4 border-b text-left">Bin</th>
-          <th className="py-2 px-4 border-b text-left">Container RFID</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-          <td className="py-2 px-4 border-b">{row.cm_part_id}</td>
-          <td className="py-2 px-4 border-b">{row.tat_sku}</td>
-          <td className="py-2 px-4 border-b">{row.name}</td>
-          <td className="py-2 px-4 border-b">{row.qty_container}</td>
-          <td className="py-2 px-4 border-b">{row.unit}</td>
-          <td className="py-2 px-4 border-b">{row.status}</td>
-          <td className="py-2 px-4 border-b">{moment(row.fill_date).format('DD/MM/YYYY')}</td>
-          <td className="py-2 px-4 border-b">{row.bu}</td>
-          <td className="py-2 px-4 border-b"><select
-            id="zone-select"
-            value={selectedZone}
-            onChange={(e) => handleZoneChange(e.target.value)}
-            className="border px-2 py-1 rounded"
+    <div className="overflow-x-auto">
+      <div key={row.cm_part_id} className="border border-gray-200 mb-4">
+        <div className="bg-gray-200 font-bold py-2 px-4">Edit Form: {row.id}</div>
+        <div className="p-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">CM Part ID:</label>
+                <span>{row.cm_part_id}</span>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">TAT SKU:</label>
+                <span>{row.tat_sku}</span>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">Name:</label>
+                <span>{row.name}</span>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">Qty/Container:</label>
+                <span>{row.qty_container}</span>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">Unit:</label>
+                <span>{row.unit}</span>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">Status:</label>
+                <span>{row.status}</span>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">Fill Date:</label>
+                <span>{moment(row.fill_date).format('DD/MM/YYYY')}</span>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">BU:</label>
+                <span>{row.bu}</span>
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">Zone:</label>
+                <span>{row.zone_name}</span>
+              </div>
+              {/*<select
+                id="zone-select"
+                value={selectedZone}
+                onChange={(e) => handleZoneChange(e.target.value)}
+                className="border px-2 py-1 rounded w-full"
+              >
+                <option value="" disabled>Select a zone</option>
+                {zones.map(zone => (
+                  <option key={zone.id} value={zone.id}>
+                    {zone.name}
+                  </option>
+                ))}
+              </select>*/}
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">Shelve ID:</label>
+                <span>{row.shelve_id}</span>
+              </div>
+              {/*<select
+                id="shelve-select"
+                value={selectedShelveId}
+                onChange={(e) => handleShelveChange(e.target.value)}
+                className="border px-2 py-1 rounded w-full"
+              >
+                <option value="" disabled>Select a shelf</option>
+                {shelves.map(shelve => (
+                  <option key={shelve.id} value={shelve.id}>
+                    {shelve.id}
+                  </option>
+                ))}
+              </select>*/}
+            </div>
+            <div>
+              <div className="flex justify-between">
+                <label className="block font-bold">Bin:</label>
+                <span>{row.bin_name}</span>
+              </div>
+              {/*<select
+                id="bin-select"
+                value={selectedBinId}
+                onChange={(e) => setSelectedBinId(e.target.value)}
+                className="border px-2 py-1 rounded w-full"
+              >
+                <option value="" disabled>Select a bin</option>
+                {bins.map(bin => (
+                  <option key={bin.id} value={bin.id}>
+                    {bin.name}
+                  </option>
+                ))}
+              </select>*/}
+            </div>
+            <div>
+              <label className="block font-bold">Container RFID:</label>
+              <input
+                type="text"
+                value={containerRfid}
+                onChange={(e) => setContainerRfid(e.target.value)}
+                className="border px-2 py-1 rounded w-full"
+              />
+            </div>
+          </div>
+        </div>
+        <div className={"flex justify-end"}>
+          <button
+            onClick={handleSave}
+            className="m-4 bg-blue-500 text-white px-4 py-2 rounded shadow"
           >
-            <option value="" disabled>Select a zone</option>
-            {zones.map(zone => (
-              <option key={zone.id} value={zone.id}>
-                {zone.name}
-              </option>
-            ))}
-          </select></td>
-          <td className="py-2 px-4 border-b">
-            <select
-              id="shelve-select"
-              value={selectedShelveId}
-              onChange={(e) => handleShelveChange(e.target.value)}
-              className="border px-2 py-1 rounded"
-            >
-              <option value="" disabled>Select a shelf</option>
-              {shelves.map(shelve => (
-                <option key={shelve.id} value={shelve.id}>
-                  {shelve.id}
-                </option>
-              ))}
-            </select></td>
-          <td className="py-2 px-4 border-b">
-            <select
-              id="bin-select"
-              value={selectedBinId}
-              onChange={(e) => setSelectedBinId(e.target.value)}
-              className="border px-2 py-1 rounded"
-            >
-              <option value="" disabled>Select a bin</option>
-              {bins.map(bin => (
-                <option key={bin.id} value={bin.id}>
-                  {bin.name}
-                </option>
-              ))}
-            </select>
-          </td>
-          <td className="py-2 px-4 border-b">
-            <input
-              type="text"
-              value={containerRfid} // Controlled input
-              onChange={(e) => setContainerRfid(e.target.value)} // Update state on change
-              className="border px-2 py-1 rounded w-full" // Styling for input
-            />
-          </td>
-        </tr>
-        <tr>
-          <td colSpan={12} align={"right"}>
-            {/* Save Button positioned at the top right */}
-            <button
-              onClick={handleSave}
-              className="m-4 bg-blue-500 text-white px-4 py-2 rounded shadow"
-            >
-              Save
-            </button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+            Save
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

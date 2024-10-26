@@ -17,7 +17,7 @@ export async function GET(req) {
     const offset = (page - 1) * limit;
 
     // Truy vấn để lấy dữ liệu phân trang
-    const query = `SELECT * FROM parts_list LIMIT ${limit} OFFSET ${offset}`;
+    const query = `SELECT * from parts_list LIMIT ${limit} OFFSET ${offset}`;
     const [rows] = await connection.execute(query);
 
     // Truy vấn để lấy tổng số mục
@@ -34,6 +34,7 @@ export async function GET(req) {
 
 export async function POST(req) {
   const {
+    cm_part_id,
     name,
     qty_container,
     unit,
@@ -42,10 +43,11 @@ export async function POST(req) {
     bu,
     tat_sku,
     container_rfid,
+    created_at,
   } = await req.json();
 
   // Kiểm tra xem tất cả các trường đã được cung cấp
-  if (!name || !qty_container || !unit || !status || !fill_date || !bu || !tat_sku || !container_rfid) {
+  if (!cm_part_id || !name || !qty_container || !unit || !status || !fill_date || !bu || !tat_sku || !container_rfid || !created_at) {
     return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
   }
 
@@ -64,8 +66,8 @@ export async function POST(req) {
 
     // Thực hiện truy vấn để chèn dữ liệu vào bảng parts_list
     const [result] = await connection.execute(
-      'INSERT INTO parts_list (name, qty_container, unit, status, fill_date, bu, zone, shelve_id, bin, tat_sku, container_rfid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, qty_container, unit, status, fill_date, bu, '', '', '', tat_sku, container_rfid]
+      'INSERT INTO parts_list (cm_part_id, name, qty_container, unit, status, fill_date, bu, zone_id, shelve_id, bin_id, tat_sku, container_rfid,created_at,updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [cm_part_id,name, qty_container, unit, status, fill_date, bu, '', '', '', tat_sku, container_rfid,created_at,'']
     );
 
     // Gửi phản hồi

@@ -28,7 +28,7 @@ export default function RootLayout({
       <title>C-part management - BU & Zone view</title>
       <meta name="description" content="C-part management - BU & Zone view" />
     </head>
-    <body
+    <body suppressHydrationWarning={true}
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
     <Provider store={store}>
