@@ -33,7 +33,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
   // Hàm xử lý khi checkbox được chọn hoặc bỏ chọn
   const handleSelectRow = (row: TableRow) => {
 
-    if (selectedRow?.cm_part_id === row.cm_part_id) {
+    if (selectedRow?.id === row.id) {
       // Nếu hàng đã được chọn thì bỏ chọn
       setSelectedRow(null);
     } else {
@@ -67,11 +67,11 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
         <tbody>
         {data.length > 0 ? (
           data.map((row) => (
-            <tr key={row.cm_part_id} className={`hover:bg-gray-100 ${selectedRow?.cm_part_id === row.cm_part_id ? 'bg-blue-100' : ''}`}>
+            <tr key={row.id} className={`hover:bg-gray-100 ${selectedRow?.id === row.id ? 'bg-blue-100' : ''}`}>
               <td className="py-2 px-4 border-b">
                 <input
                   type="checkbox"
-                  checked={selectedRow?.cm_part_id === row.cm_part_id}
+                  checked={selectedRow?.id === row.id}
                   onChange={() => handleSelectRow(row)} // Gọi hàm xử lý khi checkbox thay đổi
                 />
               </td>
