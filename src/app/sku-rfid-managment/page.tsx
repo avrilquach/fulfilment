@@ -52,7 +52,7 @@ export default function Page() {
         if (selectedShelve) params.append('shelveId', selectedShelve.value);
         if (selectedOption) params.append('status', selectedOption.value);
 
-        const response = await fetch(`/api/shelves-and-bins?page=1&limit=${itemsPerPage}&${params.toString()}`);
+        const response = await fetch(`/api/shelves-and-bins?page=${currentPage}&limit=${itemsPerPage}&${params.toString()}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
         setData(result.data);
@@ -128,7 +128,7 @@ export default function Page() {
       const result = await response.json();
       setData(result.data);
       setTotalCount(result.totalCount);
-      setCurrentPage(1); // Reset to the first page after search*/
+      setCurrentPage(1);
     } catch (err: any) {
       setError(err.message);
     } finally {

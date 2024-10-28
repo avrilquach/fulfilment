@@ -4,7 +4,7 @@ import { getConnection } from '@/lib/db';
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   let page = parseInt(searchParams.get('page')) || 1; // Lấy số trang từ tham số truy vấn
-  let limit = parseInt(searchParams.get('limit')) || 10; // Số lượng mục trên mỗi trang
+  let limit = parseInt(searchParams.get('limit')) || 25; // Số lượng mục trên mỗi trang
 
   // Đảm bảo các tham số không âm
   if (limit < 1) limit = 1;
