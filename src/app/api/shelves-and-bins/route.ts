@@ -3,12 +3,8 @@ import { getConnection } from '@/lib/db';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  let page = parseInt(searchParams.get('page')) || 1; // Lấy số trang từ tham số truy vấn
-  let limit = parseInt(searchParams.get('limit')) || 25; // Số lượng mục trên mỗi trang
-
-  // Đảm bảo các tham số không âm
-  if (limit < 1) limit = 1;
-  if (page < 1) page = 1;
+  const page = parseInt(searchParams.get('page') ?? "1");
+  const limit = parseInt(searchParams.get('limit') ?? "25");
 
   // Get filter parameters
   const zoneId = searchParams.get('zoneId');
@@ -37,29 +33,23 @@ export async function GET(req: Request) {
     query += ` ORDER BY z.id, s.id, b.id LIMIT ${limit} OFFSET ${offset}`;
     const [rows] = await connection.execute(query);
 
-    // Truy vấn để lấy tổng số mục
-    let countQuery = `
-      SELECT COUNT(*) as count 
-      FROM bin b 
-      LEFT JOIN shelve s ON b.shelve_id = s.id 
-      LEFT JOIN zone z ON s.zone_id = z.id 
-      WHERE 1=1`;
+    // Truy vấn để lấy dữ liệu phân trang
+    let query2 = `SELECT COUNT(*) as count FROM bin b LEFT JOIN shelve s ON b.shelve_id = s.id LEFT JOIN zone z ON s.zone_id = z.id WHERE 1=1`;
 
     if (zoneId) {
-      countQuery += ` AND z.id = ${zoneId}`;
+      query2 += ` AND z.id = ${zoneId}`;
     }
     if (shelveId) {
-      countQuery += ` AND s.id = ${shelveId}`;
+      query2 += ` AND s.id = ${shelveId}`;
     }
     if (status) {
-      countQuery += ` AND b.status = ${status}`;
+      query2 += ` AND b.status = ${status}`;
     }
 
-    const [totalRows] = await connection.execute(countQuery);
-    const totalCount = totalRows[0].count;
+    const [rows2] = await connection.execute(query2);
 
     // Gửi phản hồi với danh sách các phần
-    return NextResponse.json({ totalCount, data: rows }, { status: 200 });
+    return NextResponse.json({ data: rows, total: rows2 }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: 'Something went wrong' }, { status: 500 });

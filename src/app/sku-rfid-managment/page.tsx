@@ -15,13 +15,18 @@ interface Shelve {
   name: string;
 }
 
-const options = [
-  { value: 0, label: 'Inactive' },  // Status 0
-  { value: 1, label: 'Active' },     // Status 1
+interface Option {
+  value: number;
+  label: string;
+}
+
+const options: Option[] = [
+  { value: 0, label: 'Inactive' },
+  { value: 1, label: 'Active' },
 ];
 
 export default function Page() {
-  const [data, setData] = useState([]); // Dữ liệu sẽ được lưu trữ ở đây
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,15 +34,15 @@ export default function Page() {
   const [itemsPerPage] = useState(25);
   const [totalCount, setTotalCount] = useState(0);
 
-  const [selectedZone, setSelectedZone] = useState(null);
-  const [zoneList, setZoneList] = useState<any[]>([]);
+  const [selectedZone, setSelectedZone] = useState<Option | null>(null);
+  const [zoneList, setZoneList] = useState<Option[]>([]);
 
-  const [selectedShelve, setSelectedShelve] = useState(null);
-  const [shelveList, setShelveList] = useState<any[]>([]);
+  const [selectedShelve, setSelectedShelve] = useState<Option | null>(null);
+  const [shelveList, setShelveList] = useState<Option[]>([]);
 
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
 
-  const handleChange = (selectedOption) => {
+  const handleChange = (selectedOption: Option | null) => {
     setSelectedOption(selectedOption);
   };
 
@@ -46,18 +51,17 @@ export default function Page() {
       try {
         setLoading(true);
         const params = new URLSearchParams();
-        // Construct the URL with selected filters
 
-        if (selectedZone) params.append('zoneId', selectedZone.value);
-        if (selectedShelve) params.append('shelveId', selectedShelve.value);
-        if (selectedOption) params.append('status', selectedOption.value);
+        if (selectedZone) params.append('zoneId', selectedZone.value.toString());
+        if (selectedShelve) params.append('shelveId', selectedShelve.value.toString());
+        if (selectedOption) params.append('status', selectedOption.value.toString());
 
         const response = await fetch(`/api/shelves-and-bins?page=${currentPage}&limit=${itemsPerPage}&${params.toString()}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
         setData(result.data);
-        setTotalCount(result.totalCount);
-      } catch (err:any) {
+        setTotalCount(result.total[0].count);
+      } catch (err: any) {
         setError(err.message);
       } finally {
         setLoading(false);
@@ -69,65 +73,63 @@ export default function Page() {
       try {
         const response = await fetch('/api/zone', {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         });
         const data = await response.json();
         setZoneList(data.rows.map((zone: Zone) => ({
           value: zone.id,
-          label: zone.name, // You might want to use sku.name here for better clarity
+          label: zone.name,
         })));
-      } catch (err:any) {
+      } catch (err: any) {
         console.log(err.message);
       }
     };
     getDataZone();
-  }, [currentPage, itemsPerPage]);
+  }, [currentPage, itemsPerPage, selectedOption, selectedShelve, selectedZone]);
 
   if (loading) return <div className="flex justify-center items-center h-screen text-lg">Loading...</div>;
   if (error) return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>;
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-  const handleZoneChange = async (selectedOption:any) => {
+  const handleZoneChange = async (selectedOption: Option | null) => {
     setSelectedZone(selectedOption);
     setSelectedShelve(null);
+    if (!selectedOption) return; // Kiểm tra nếu không có zone được chọn
+
     try {
       const response = await fetch(`/api/shelves?zoneId=${selectedOption.value}`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
       const data = await response.json();
       setShelveList(data.rows.map((shelve: Shelve) => ({
         value: shelve.id,
-        label: shelve.name, // You might want to use sku.name here for better clarity
+        label: shelve.name,
       })));
     } catch (error) {
       console.error('Error fetching shelves:', error);
     }
   };
-  const handleShelveChange = (selectedOption:any) => {
+
+  const handleShelveChange = (selectedOption: Option | null) => {
     setSelectedShelve(selectedOption);
   };
+
   const handleSearch = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      // Construct the URL with selected filters
 
-      if (selectedZone) params.append('zoneId', selectedZone.value);
-      if (selectedShelve) params.append('shelveId', selectedShelve.value);
-      if (selectedOption) params.append('status', selectedOption.value);
+      if (selectedZone) params.append('zoneId', selectedZone.value.toString());
+      if (selectedShelve) params.append('shelveId', selectedShelve.value.toString());
+      if (selectedOption) params.append('status', selectedOption.value.toString());
 
       const response = await fetch(`/api/shelves-and-bins?page=1&limit=${itemsPerPage}&${params.toString()}`);
-
       if (!response.ok) throw new Error('Network response was not ok');
 
       const result = await response.json();
       setData(result.data);
-      setTotalCount(result.totalCount);
+      setTotalCount(result.total[0].count);
       setCurrentPage(1);
     } catch (err: any) {
       setError(err.message);
@@ -140,7 +142,7 @@ export default function Page() {
     <>
       <Header />
       <div className="p-4">
-        <h1 className="text-3xl font-bold mb-6 text-center">SKU & RFID managment​</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">SKU & RFID Management</h1>
         <div className="grid mb-6 grid-cols-4 gap-4">
           <div>
             <Select
@@ -172,20 +174,19 @@ export default function Page() {
           <div>
             <button
               onClick={handleSearch}
-              className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200`}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
             >
-              {'Search'}
+              Search
             </button>
           </div>
         </div>
-        <DataTable data={data} /> {/* Truyền dữ liệu vào DataTable */}
+        <DataTable data={data} />
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage} // Cập nhật trang hiện tại
+          onPageChange={setCurrentPage}
         />
       </div>
     </>
   );
-};
-
+}
