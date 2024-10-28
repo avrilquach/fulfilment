@@ -136,11 +136,16 @@ const SelectedRow: React.FC<SelectedRowProps> = ({ row }) => {
 
   const handleSave = async () => {
     // Check if containerRfid exists in partsRfid
-    if (partsRfid.includes(containerRfid)) {
+    /*console.log("partsRfid",partsRfid);
+    console.log("containerRfid",containerRfid);
+    const isContainerRfidExists = partsRfid.some(part => part.container_rfid === '111');
+    const filteredParts = partsRfid.filter(part => part.container_rfid === containerRfid);
+
+    if (isContainerRfidExists) {
       console.error("Container RFID already exists in parts list.");
       alert("Container RFID already exists in parts list. Please enter a unique RFID.");
       return; // Exit the function to prevent saving
-    }
+    }*/
 
     /*// Check required fields
     if (!selectedZone) {
@@ -177,7 +182,7 @@ const SelectedRow: React.FC<SelectedRowProps> = ({ row }) => {
       const result = await response.json();
       if (response.ok) {
         alert(result.message);
-        window.location.href = window.location.href;
+        //window.location.href = window.location.href;
       } else {
         alert(result.message);
       }
@@ -198,6 +203,15 @@ const SelectedRow: React.FC<SelectedRowProps> = ({ row }) => {
                 <label className="block font-bold">CM Part ID:</label>
                 <span>{row.cm_part_id}</span>
               </div>
+            </div>
+            <div>
+              <label className="block font-bold">Container RFID:</label>
+              <input
+                type="text"
+                value={containerRfid}
+                onChange={(e) => setContainerRfid(e.target.value)}
+                className="border px-2 py-1 rounded w-full"
+              />
             </div>
             <div>
               <div className="flex justify-between">
@@ -297,15 +311,6 @@ const SelectedRow: React.FC<SelectedRowProps> = ({ row }) => {
                   </option>
                 ))}
               </select>*/}
-            </div>
-            <div>
-              <label className="block font-bold">Container RFID:</label>
-              <input
-                type="text"
-                value={containerRfid}
-                onChange={(e) => setContainerRfid(e.target.value)}
-                className="border px-2 py-1 rounded w-full"
-              />
             </div>
           </div>
         </div>

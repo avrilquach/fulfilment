@@ -8,7 +8,7 @@ export async function GET() {
     const response = NextResponse.json({ message: 'Message successful' ,rows}, { status: 200 });
     return response;
   } catch (error) {
-    console.error('Error fetching Zone:', error);
-    return NextResponse.json({ error: 'Failed to fetch Zone' }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ message: 'Something went wrong' }, { status: 500 });
   }
 }
