@@ -47,7 +47,7 @@ export default function Page() {
       <Header />
       <div className="flex">
         <Sidebar />
-        <main className="flex-grow p-5">
+        <main className="flex-grow p-5 hidden">
           <DataTable data={data} /> {/* Truyền dữ liệu vào DataTable */}
           <Pagination
             currentPage={currentPage}
