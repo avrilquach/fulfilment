@@ -128,12 +128,12 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            cm_part_id: '123',
+            cm_part_id: '',
             name: selectedSkuName, // Lưu thông tin SKU name
             qty_container: selectedSkuQty,
             unit: selectedSkuUnit,
-            status: "empty", // Giả sử bạn có thông tin này từ state
-            fill_date: new Date().toISOString(), // Ngày điền
+            status: 'Empty', // Giả sử bạn có thông tin này từ state
+            fill_date: '', // Ngày điền
             bu: selectedSkuBu, // Giả sử bạn có thông tin này từ state
             tat_sku: tat_sku,
             container_rfid: rfid, // Hoặc tên biến khác tùy theo yêu cầu
@@ -164,39 +164,35 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
   }
 
   return (
-    <div className="max-w-lg bg-white shadow-lg rounded-lg p-4">
-      <h1 className="text-xl font-semibold text-gray-800 mb-6 text-center">
-        SKU and RFID Management
-      </h1>
-
+    <div className="relative z-10 grid bg-white shadow-lg rounded-lg gap-4 p-4 grid-cols-3 mb-6">
       {/* Select box cho mã SKU */}
-      <div className="mb-6">
-        <label htmlFor="skuList" className="block text-sm font-medium text-gray-700 mb-2">
-          Select SKU Code
-        </label>
-        <Select
-          id="skuList"
-          value={selectedSku}
-          onChange={handleSkuChange}
-          options={skuList}
-          placeholder="Select SKU Code"
-        />
+      <div>
+        <div className="mb-6">
+          <label htmlFor="skuList" className="block text-sm font-medium text-gray-700 mb-2">
+            Select SKU Code
+          </label>
+          <Select
+            id="skuList"
+            value={selectedSku}
+            onChange={handleSkuChange}
+            options={skuList}
+            placeholder="Select SKU Code"
+          />
+        </div>
+        <div>
+          {/* Label và Input cho tên sản phẩm */}
+          <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-2">
+            Product Name
+          </label>
+          <input
+            id="productName"
+            type="text"
+            value={selectedSkuDetails?.name || ''} // Gán tên sản phẩm từ selectedSkuDetails
+            readOnly
+            className="block w-full border border-gray-300 rounded-md p-3 bg-gray-100"
+          />
+        </div>
       </div>
-
-      {/* Label và Input cho tên sản phẩm */}
-      <div className="mb-6">
-        <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-2">
-          Product Name
-        </label>
-        <input
-          id="productName"
-          type="text"
-          value={selectedSkuDetails?.name || ''} // Gán tên sản phẩm từ selectedSkuDetails
-          readOnly
-          className="block w-full border border-gray-300 rounded-md p-3 bg-gray-100"
-        />
-      </div>
-
       {/* Textarea cho mã RFID */}
       <div>
         <label htmlFor="rfidList" className="block text-sm font-medium text-gray-700 mb-2">
@@ -211,15 +207,16 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
           className="block w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
         ></textarea>
       </div>
-
-      <div className="mt-6 flex justify-center">
-        <button
-          onClick={handleSave}
-          disabled={saving} // Vô hiệu hóa nút khi đang lưu
-          className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          {saving ? 'Saving...' : 'Save'}
-        </button>
+      <div>
+        <div className="flex items-end h-full">
+          <button
+            onClick={handleSave}
+            disabled={saving} // Vô hiệu hóa nút khi đang lưu
+            className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {saving ? 'Saving...' : 'Save'}
+          </button>
+        </div>
       </div>
       {saving && (
         <div className="flex justify-center mt-4">

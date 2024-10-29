@@ -3,7 +3,7 @@
 import React, {useState} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
-import SelectedRow from './SelectedRow'; // Import SelectedRow component
+import SelectedRow from '../SelectedRow'; // Import SelectedRow component
 
 interface TableRow {
   id: number;
@@ -43,9 +43,9 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
   };
 
   return (
-    <div className="overflow-x-auto">
+    <div>
       {/* Hiển thị SelectedRow nếu selectedRow không phải null */}
-      {selectedRow && <SelectedRow row={selectedRow} />}
+      {selectedRow && <SelectedRow key={selectedRow.id} row={selectedRow}/>}
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
         <tr className="bg-gray-200">

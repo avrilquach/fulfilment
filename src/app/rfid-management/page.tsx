@@ -1,10 +1,10 @@
 'use client';
-import Header from './components/header';
-import SkuRfidManager from './components/skurfidmanager';
-import DataTable from './components/page/DataTable';
-import Pagination from './components/pagination';
+import Header from '../components/header';
+import SkuRfidManager from '../components/skurfidmanager';
+import DataTable from '../components/rfid-management/DataTable';
+import Pagination from '../components/pagination';
 import React, { useEffect, useState, useCallback } from 'react';
-import Sidebar from './components/Sidebar';
+import Sidebar from "../components/Sidebar";
 
 export default function Page() {
   const [data, setData] = useState([]); // Dữ liệu sẽ được lưu trữ ở đây
@@ -34,8 +34,15 @@ export default function Page() {
     fetchData();
   }, [fetchData]); // Now you can safely include fetchData here
 
-  if (loading) return <div className="flex justify-center items-center h-screen text-lg">Loading...</div>;
-  if (error) return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>;
+  if (loading) return <div className="loader">Loading...</div>;
+  if (error) {
+    return (
+      <div>
+        <div>Error: {error}</div>
+        <button onClick={fetchData}>Retry</button>
+      </div>
+    );
+  }
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
@@ -48,12 +55,17 @@ export default function Page() {
       <div className="flex">
         <Sidebar />
         <main className="flex-grow p-5">
-          <DataTable data={data} /> {/* Truyền dữ liệu vào DataTable */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage} // Cập nhật trang hiện tại
-          />
+          <div>
+            <SkuRfidManager onSave={handleSave}/>
+            <div className="col-span-3">
+              <DataTable data={data} /> {/* Truyền dữ liệu vào DataTable */}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage} // Cập nhật trang hiện tại
+              />
+            </div>
+          </div>
         </main>
       </div>
     </>

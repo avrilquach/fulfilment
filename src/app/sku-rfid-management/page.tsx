@@ -4,6 +4,7 @@ import Header from "../components/header";
 import DataTable from "../components/sku-rfid-managment/DataTable";
 import Pagination from "../components/pagination";
 import Select from "react-select";
+import Sidebar from "../components/Sidebar";
 
 interface Zone {
   id: number;
@@ -31,7 +32,7 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(25);
+  const [itemsPerPage] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
 
   const [selectedZone, setSelectedZone] = useState<Option | null>(null);
@@ -43,6 +44,7 @@ export default function Page() {
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
 
   const handleChange = (selectedOption: Option | null) => {
+    setCurrentPage(1);
     setSelectedOption(selectedOption);
   };
 
@@ -94,6 +96,7 @@ export default function Page() {
   const handleZoneChange = async (selectedOption: Option | null) => {
     setSelectedZone(selectedOption);
     setSelectedShelve(null);
+    setCurrentPage(1);
     if (!selectedOption) return; // Kiểm tra nếu không có zone được chọn
 
     try {
@@ -112,80 +115,52 @@ export default function Page() {
   };
 
   const handleShelveChange = (selectedOption: Option | null) => {
+    setCurrentPage(1);
     setSelectedShelve(selectedOption);
   };
-
-  const handleSearch = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-
-      if (selectedZone) params.append('zoneId', selectedZone.value.toString());
-      if (selectedShelve) params.append('shelveId', selectedShelve.value.toString());
-      if (selectedOption) params.append('status', selectedOption.value.toString());
-
-      const response = await fetch(`/api/shelves-and-bins?page=1&limit=${itemsPerPage}&${params.toString()}`);
-      if (!response.ok) throw new Error('Network response was not ok');
-
-      const result = await response.json();
-      setData(result.data);
-      setTotalCount(result.total[0].count);
-      setCurrentPage(1);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <>
       <Header />
-      <div className="p-4">
-        <h1 className="text-3xl font-bold mb-6 text-center">SKU & RFID Management</h1>
-        <div className="grid mb-6 grid-cols-4 gap-4">
-          <div>
-            <Select
-              id="zoneList"
-              value={selectedZone}
-              onChange={handleZoneChange}
-              options={zoneList}
-              placeholder="Select Zone"
-            />
+      <div className="flex">
+        <Sidebar />
+        <main className="flex-grow p-5">
+          <h1 className="text-3xl font-bold mb-6 text-center">SKU & RFID Management</h1>
+          <div className="grid mb-6 grid-cols-3 gap-4">
+            <div>
+              <Select
+                id="zoneList"
+                value={selectedZone}
+                onChange={handleZoneChange}
+                options={zoneList}
+                placeholder="Select Zone"
+              />
+            </div>
+            <div>
+              <Select
+                id="shelveList"
+                value={selectedShelve}
+                onChange={handleShelveChange}
+                options={shelveList}
+                placeholder="Select Shelve"
+              />
+            </div>
+            <div>
+              <Select
+                id="statusList"
+                value={selectedOption}
+                onChange={handleChange}
+                options={options}
+                placeholder="Select Status"
+              />
+            </div>
           </div>
-          <div>
-            <Select
-              id="shelveList"
-              value={selectedShelve}
-              onChange={handleShelveChange}
-              options={shelveList}
-              placeholder="Select Shelve"
-            />
-          </div>
-          <div>
-            <Select
-              id="statusList"
-              value={selectedOption}
-              onChange={handleChange}
-              options={options}
-              placeholder="Select Status"
-            />
-          </div>
-          <div>
-            <button
-              onClick={handleSearch}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
-            >
-              Search
-            </button>
-          </div>
-        </div>
-        <DataTable data={data} />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+          <DataTable data={data} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </main>
       </div>
     </>
   );

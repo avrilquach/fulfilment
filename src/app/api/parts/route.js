@@ -17,11 +17,11 @@ export async function GET(req) {
     const offset = (page - 1) * limit;
 
     // Truy vấn để lấy dữ liệu phân trang
-    const query = `SELECT * from parts_list LIMIT ${limit} OFFSET ${offset}`;
+    const query = `SELECT pl.*, z.name AS zone_name, b.name AS bin_name FROM parts_list pl LEFT JOIN zone z ON pl.zone_id = z.id LEFT JOIN bin b ON pl.bin_id = b.id LIMIT ${limit} OFFSET ${offset}`;
     const [rows] = await connection.execute(query);
 
     // Truy vấn để lấy tổng số mục
-    const [totalRows] = await connection.execute('SELECT COUNT(*) as count FROM parts_list');
+    const [totalRows] = await connection.execute('SELECT COUNT(*) AS count FROM parts_list pl LEFT JOIN zone z ON pl.zone_id = z.id LEFT JOIN bin b ON pl.bin_id = b.id');
     const totalCount = totalRows[0].count;
 
     // Gửi phản hồi với danh sách các phần
@@ -47,7 +47,7 @@ export async function POST(req) {
   } = await req.json();
 
   // Kiểm tra xem tất cả các trường đã được cung cấp
-  if (!cm_part_id || !name || !qty_container || !unit || !status || !fill_date || !bu || !tat_sku || !container_rfid || !created_at) {
+  if (!name || !qty_container || !unit || !status || !bu || !tat_sku || !container_rfid || !created_at) {
     return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
   }
 

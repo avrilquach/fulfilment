@@ -3,13 +3,13 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req) {
   const {
-    containerRfid,
+    firstRfid,
   } = await req.json();
 
   try {
     const connection = await getConnection();
 
-    const [rows] = await connection.execute('SELECT * FROM parts_list WHERE container_rfid NOT IN (?)',[containerRfid]);
+    const [rows] = await connection.execute('SELECT * FROM parts_list WHERE container_rfid NOT IN (?)',[firstRfid]);
     const response = NextResponse.json({ message: 'Message successful' ,rows}, { status: 200 });
     return response;
 
