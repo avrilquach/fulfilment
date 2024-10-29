@@ -1,3 +1,4 @@
+// src/app/api/container-management/route.ts
 import { getConnection } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
@@ -7,39 +8,50 @@ export async function GET(req: Request) {
   let limit = parseInt(searchParams.get('limit') ?? "15");
 
   // Get filter parameters
+  const location = searchParams.get('location');
+  const shelve = searchParams.get('shelve');
   const status = searchParams.get('status');
 
-  // Đảm bảo các tham số không âm
+  // Ensure non-negative parameters
   if (limit < 1) limit = 1;
   if (page < 1) page = 1;
 
   try {
     const connection = await getConnection();
 
-    // Tính toán offset
+    // Calculate offset
     const offset = (page - 1) * limit;
 
-    // Truy vấn để lấy dữ liệu phân trang
+    // Base query
     let query = `SELECT * FROM container_management`;
+    let query2 = `SELECT COUNT(*) as count FROM container_management`;
 
+    // Handle filters
+    const conditions: string[] = [];
+
+    if (location) {
+      conditions.push(`location = '${location}'`);
+    }
+    if (shelve) {
+      conditions.push(`shelve = '${shelve}'`);
+    }
     if (status) {
-      query += ` WHERE status = '${status}'`;
+      conditions.push(`status = '${status}'`);
     }
 
-    query += ` LIMIT ${limit} OFFSET ${offset}`;
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(' AND ')}`;
+      query2 += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    // Execute data query
     const [rows] = await connection.execute(query);
 
-    // Truy vấn để lấy tổng số mục
-    let query2 = `SELECT COUNT(*) as count  FROM container_management`;
-
-    if (status) {
-      query2 += ` WHERE status = '${status}'`;
-    }
-
+    // Execute count query
     const [rows2] = await connection.execute(query2);
 
-    // Gửi phản hồi với danh sách các phần
-    return NextResponse.json({ data: rows, total: rows2}, { status: 200 });
+    // Return the response
+    return NextResponse.json({ data: rows, total: rows2 }, { status: 200 });
   } catch (error) {
     console.error('Error fetching parts:', error);
     return NextResponse.json({ message: 'Something went wrong' }, { status: 500 });

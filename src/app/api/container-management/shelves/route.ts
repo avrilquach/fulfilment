@@ -4,16 +4,16 @@ import {RowDataPacket} from "mysql2/promise";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const zoneId = searchParams.get('zoneId'); // Use `zoneId` parameter
+  const location = searchParams.get('location'); // Use `zoneId` parameter
 
   // Validate zoneId
-  if (!zoneId) {
-    return NextResponse.json({ error: 'zoneId is required' }, { status: 400 });
+  if (!location) {
+    return NextResponse.json({ error: 'location is required' }, { status: 400 });
   }
 
   try {
     const connection = await getConnection();
-    const [rows]: [RowDataPacket[], any] =  await connection.execute('SELECT * FROM shelve WHERE zone_id = ?', [zoneId]);
+    const [rows]: [RowDataPacket[], any] =  await connection.execute('SELECT shelve FROM container_management WHERE location = ? GROUP BY shelve', [location]);
 
     // Check if any shelves were found
     if (Array.isArray(rows) && rows.length === 0) {

@@ -12,7 +12,16 @@ interface Option {
   label: string;
 }
 
+interface Location {
+  location: string;
+}
+
+interface Shelve {
+  shelve: string;
+}
+
 const options: Option[] = [
+  { value: '', label: 'All' },
   { value: 'Inactive', label: 'Inactive' },
   { value: 'Empty', label: 'Empty' },
   { value: 'Full', label: 'Full' },
@@ -26,32 +35,60 @@ export default function Page() {
   const [itemsPerPage] = useState<number>(15);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
-  const [editData, setEditData] = useState<any | null>(null); // State to hold edit data
+  const [editData, setEditData] = useState<any | null>(null);
+
+  const [selectedLocation, setSelectedLocation] = useState<Option | null>(null);
+  const [locationList, setLocationList] = useState<Option[]>([]);
+
+  const [selectedShelve, setSelectedShelve] = useState<Option | null>(null);
+  const [shelveList, setShelveList] = useState<Option[]>([]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    setError(null); // Reset error state before fetching
+    setError(null);
     try {
       const params = new URLSearchParams();
-
       if (selectedOption) params.append('status', selectedOption.value);
+      if (selectedLocation) params.append('location', selectedLocation.value);
+      if (selectedShelve) params.append('shelve', selectedShelve.value);
 
       const response = await fetch(`/api/container-management?page=${currentPage}&limit=${itemsPerPage}&${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch data');
 
       const result = await response.json();
       setData(result.data);
-      setTotalCount(result.total[0].count); // Update this based on your API response
+      setTotalCount(result.total[0].count);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, itemsPerPage, selectedOption]); // Add dependencies here
+  }, [currentPage, itemsPerPage, selectedOption, selectedLocation, selectedShelve]); // Updated dependencies
+
+  const getDataLocation = async () => {
+    try {
+      const response = await fetch('/api/container-management/location', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      const locationsWithAll = [
+        { value: '', label: 'All' }, // Add "All" option
+        ...data.rows.map((location: Location) => ({
+          value: location.location,
+          label: location.location,
+        })),
+      ];
+      setLocationList(locationsWithAll);
+    } catch (err: any) {
+      console.log(err.message);
+    }
+  };
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]); // Use fetchData as a dependency
+    getDataLocation();
+  }, [fetchData]);
 
   const handleChange = (selectedOption: Option | null) => {
     setSelectedOption(selectedOption);
@@ -59,17 +96,44 @@ export default function Page() {
   };
 
   const refreshData = () => {
-    fetchData(); // Call fetchData to refresh the DataTable
+    fetchData();
   };
 
   const handleEdit = (row: any) => {
-    setEditData(row); // Set the row data to be edited
+    setEditData(row);
   };
 
   if (loading) return <div className="flex justify-center items-center h-screen text-lg">Loading...</div>;
   if (error) return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>;
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+  const handleLocationChange = async (selectedOption: Option | null) => {
+    setSelectedLocation(selectedOption);
+    setSelectedShelve(null);
+    setShelveList([]);
+    setCurrentPage(1);
+    if (!selectedOption) return;
+
+    try {
+      const response = await fetch(`/api/container-management/shelves?location=${selectedOption.value}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await response.json();
+      setShelveList(data.rows.map((shelve: Shelve) => ({
+        value: shelve.shelve,
+        label: shelve.shelve,
+      })));
+    } catch (error) {
+      console.error('Error fetching shelves:', error);
+    }
+  };
+
+  const handleShelveChange = (selectedOption: Option | null) => {
+    setCurrentPage(1);
+    setSelectedShelve(selectedOption);
+  };
 
   return (
     <>
@@ -79,22 +143,41 @@ export default function Page() {
         <main className="p-4 w-[80%] flex gap-4">
           <div className="w-[25%]">
             <AddRfidData onAddSuccess={refreshData} initialData={editData} />
-            <div>
-              <h2 className="text-3xl font-bold mb-6 text-center">Filters</h2>
-              <div className="space-y-4">
+          </div>
+          <div className="w-[75%]">
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div>
+                <label className="block font-semibold mb-1">Location</label>
+                <Select
+                  id="locationList"
+                  value={selectedLocation}
+                  onChange={handleLocationChange}
+                  options={locationList}
+                  placeholder="Location"
+                />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1">Shelve</label>
+                <Select
+                  id="shelveList"
+                  value={selectedShelve}
+                  onChange={handleShelveChange}
+                  options={shelveList}
+                  placeholder="Select Shelve"
+                />
+              </div>
+              <div>
+                <label className="block font-semibold mb-1">Status</label>
                 <Select
                   id="statusList"
                   value={selectedOption}
                   onChange={handleChange}
                   options={options}
-                  placeholder="Select Status"
+                  placeholder="Status"
                 />
               </div>
             </div>
-          </div>
-          <div className="w-[75%]">
-            <h1 className="text-3xl font-bold mb-6 text-center">Container Management</h1>
-            <DataTable data={data} onEdit={handleEdit} /> {/* Pass the onEdit function */}
+            <DataTable data={data} onEdit={handleEdit} />
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
