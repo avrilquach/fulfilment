@@ -25,7 +25,7 @@ const DataTable: React.FC<DataTableProps> = ({  data, onEdit }) => {
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
         <tr className="bg-gray-200">
-          <th className="py-2 px-4 border-b text-left">ID</th>
+          <th className="py-2 px-4 border-b text-left">Index</th>
           <th className="py-2 px-4 border-b text-left">Location</th>
           <th className="py-2 px-4 border-b text-left">Shelve</th>
           <th className="py-2 px-4 border-b text-left">Bin</th>
