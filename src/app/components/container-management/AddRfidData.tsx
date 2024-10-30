@@ -1,6 +1,5 @@
-// AddRfidData.tsx
-'use client';
 import { useState, useEffect } from 'react';
+import Select from "react-select";
 
 interface RfidData {
   location: string;
@@ -12,7 +11,22 @@ interface RfidData {
 
 interface AddRfidDataProps {
   onAddSuccess: () => void;
-  initialData?: RfidData | null; // New optional prop for editing
+  initialData?: RfidData | null;
+}
+
+interface Option {
+  value: number;
+  label: string;
+}
+
+interface Shelve {
+  id: number;
+  name: string;
+}
+
+interface Bin {
+  id: number;
+  name: string;
 }
 
 const AddRfidData: React.FC<AddRfidDataProps> = ({ onAddSuccess, initialData }) => {
@@ -26,10 +40,94 @@ const AddRfidData: React.FC<AddRfidDataProps> = ({ onAddSuccess, initialData }) 
   const [message, setMessage] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
-  // Effect to populate form data when initialData changes
+  const [selectedLocation, setSelectedLocation] = useState<Option | null>(null);
+  const [locationList, setLocationList] = useState<Option[]>([]);
+
+  const [selectedShelve, setSelectedShelve] = useState<Option | null>(null);
+  const [shelveList, setShelveList] = useState<Option[]>([]);
+
+  const [selectedBin, setSelectedBin] = useState<Option | null>(null);
+  const [binList, setBinList] = useState<Option[]>([]);
+
+  const getDataLocation = async () => {
+    try {
+      const response = await fetch('/api/container-management/location');
+      const data = await response.json();
+      const locations = data.rows.map((location: { id: number; name: string }) => ({
+        value: location.id,
+        label: location.name,
+      }));
+      setLocationList(locations);
+    } catch (error) {
+      console.error('Error fetching locations:', error);
+    }
+  };
+
+  const handleLocationChange = async (selectedOption: Option | null) => {
+    setSelectedLocation(selectedOption);
+    setSelectedShelve(null);
+    setShelveList([]);
+    setSelectedBin(null);
+    setBinList([]);
+
+    if (!selectedOption) {
+      setFormData((prev) => ({ ...prev, location: '', shelve: '', bin: '' }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, location: selectedOption.value.toString() }));
+
+    try {
+      const response = await fetch(`/api/container-management/shelves?zoneId=${selectedOption.value}`);
+      const data = await response.json();
+      setShelveList(data.rows.map((shelve: Shelve) => ({
+        value: shelve.id,
+        label: shelve.name,
+      })));
+    } catch (error) {
+      console.error('Error fetching shelves:', error);
+    }
+  };
+
+  const handleShelveChange = async (selectedOption: Option | null) => {
+    setSelectedShelve(selectedOption);
+    setSelectedBin(null);
+    setBinList([]);
+
+    if (!selectedOption) {
+      setFormData((prev) => ({ ...prev, shelve: '', bin: '' }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, shelve: selectedOption.value.toString() }));
+
+    try {
+      const response = await fetch(`/api/container-management/bin?shelveId=${selectedOption.value}`);
+      const data = await response.json();
+      setBinList(data.rows.map((bin: Bin) => ({
+        value: bin.id,
+        label: bin.name,
+      })));
+    } catch (error) {
+      console.error('Error fetching bins:', error);
+    }
+  };
+
+  const handleBinChange = (selectedOption: Option | null) => {
+    setSelectedBin(selectedOption);
+    setFormData((prev) => ({ ...prev, bin: selectedOption ? selectedOption.value.toString() : '' }));
+  };
+
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
+      const initialLocation = locationList.find((loc) => loc.value.toString() === initialData.location);
+      const initialShelve = shelveList.find((shelve) => shelve.value.toString() === initialData.shelve);
+      const initialBin = binList.find((bin) => bin.value.toString() === initialData.bin);
+
+      setSelectedLocation(initialLocation || null);
+      setSelectedShelve(initialShelve || null);
+      setSelectedBin(initialBin || null);
     } else {
       setFormData({
         location: '',
@@ -39,25 +137,22 @@ const AddRfidData: React.FC<AddRfidDataProps> = ({ onAddSuccess, initialData }) 
         status: 'Inactive',
       });
     }
-  }, [initialData]);
+    getDataLocation();
+  }, [initialData,binList,locationList,shelveList]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("formData", formData);
-    const url = initialData ? `/api/container-management/edit` : '/api/container-management/add';
-    const method = initialData ? 'PUT' : 'POST'; // Use PUT for editing
+    const url = initialData ? '/api/container-management/edit' : '/api/container-management/add';
+    const method = initialData ? 'PUT' : 'POST';
 
     try {
       const response = await fetch(url, {
-        method: method,
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
@@ -91,66 +186,70 @@ const AddRfidData: React.FC<AddRfidDataProps> = ({ onAddSuccess, initialData }) 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="location" className="block font-semibold mb-1">Location</label>
-          <input
-            type="text"
+          <Select
             id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            className="w-full px-2 py-1 border rounded"
-            required
+            value={selectedLocation}
+            onChange={handleLocationChange}
+            options={locationList}
+            isClearable
+            placeholder="Select a location"
+            className="w-full"
           />
         </div>
         <div>
           <label htmlFor="shelve" className="block font-semibold mb-1">Shelve</label>
-          <input
-            type="text"
+          <Select
             id="shelve"
-            name="shelve"
-            value={formData.shelve}
-            onChange={handleChange}
-            className="w-full px-2 py-1 border rounded"
-            required
+            value={selectedShelve}
+            onChange={handleShelveChange}
+            options={shelveList}
+            isClearable
+            placeholder="Select a shelve"
+            className="w-full"
           />
         </div>
         <div>
           <label htmlFor="bin" className="block font-semibold mb-1">Bin</label>
-          <input
-            type="text"
+          <Select
             id="bin"
-            name="bin"
-            value={formData.bin}
-            onChange={handleChange}
-            className="w-full px-2 py-1 border rounded"
-            required
+            value={selectedBin}
+            onChange={handleBinChange}
+            options={binList}
+            isClearable
+            placeholder="Select a bin"
+            className="w-full"
           />
         </div>
-        <div>
-          <label htmlFor="container_id" className="block font-semibold mb-1">Container ID</label>
-          <input
-            type="text"
-            id="container_id"
-            name="container_id"
-            value={formData.container_id}
-            onChange={handleChange}
-            className="w-full px-2 py-1 border rounded"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="status" className="block font-semibold mb-1">Status</label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="w-full px-2 py-1 border rounded"
-          >
-            <option value="Inactive">Inactive</option>
-            <option value="Empty">Empty</option>
-            <option value="Full">Full</option>
-          </select>
-        </div>
+        {initialData && (
+          <>
+            <div>
+              <label htmlFor="container_id" className="block font-semibold mb-1">Container ID</label>
+              <input
+                type="text"
+                id="container_id"
+                name="container_id"
+                value={formData.container_id}
+                onChange={handleChange}
+                className="w-full px-2 py-1 border rounded"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="status" className="block font-semibold mb-1">Status</label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              >
+                <option value="Inactive">Inactive</option>
+                <option value="Empty">Empty</option>
+                <option value="Full">Full</option>
+              </select>
+            </div>
+          </>
+        )}
         <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
           {initialData ? 'Update Data' : 'Add Data'}
         </button>

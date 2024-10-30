@@ -6,6 +6,7 @@ import Pagination from "../components/pagination";
 import Select from "react-select";
 import Sidebar from "../components/Sidebar";
 import AddRfidData from "../components/container-management/AddRfidData";
+import Link from 'next/link'; // Import Link
 
 interface Option {
   value: string;
@@ -13,11 +14,13 @@ interface Option {
 }
 
 interface Location {
-  location: string;
+  id: number;
+  name: string;
 }
 
 interface Shelve {
-  shelve: string;
+  id: number;
+  name: string;
 }
 
 const options: Option[] = [
@@ -75,8 +78,8 @@ export default function Page() {
       const locationsWithAll = [
         { value: '', label: 'All' }, // Add "All" option
         ...data.rows.map((location: Location) => ({
-          value: location.location,
-          label: location.location,
+          value: location.id,
+          label: location.name,
         })),
       ];
       setLocationList(locationsWithAll);
@@ -114,19 +117,21 @@ export default function Page() {
     setShelveList([]);
     setCurrentPage(1);
     if (!selectedOption) return;
-
-    try {
-      const response = await fetch(`/api/container-management/shelves?location=${selectedOption.value}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await response.json();
-      setShelveList(data.rows.map((shelve: Shelve) => ({
-        value: shelve.shelve,
-        label: shelve.shelve,
-      })));
-    } catch (error) {
-      console.error('Error fetching shelves:', error);
+    if(selectedOption.value)
+    {
+      try {
+        const response = await fetch(`/api/container-management/shelves?zoneId=${selectedOption.value}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+        setShelveList(data.rows.map((shelve: Shelve) => ({
+          value: shelve.id,
+          label: shelve.name,
+        })));
+      } catch (error) {
+        console.error('Error fetching shelves:', error);
+      }
     }
   };
 
@@ -140,50 +145,53 @@ export default function Page() {
       <Header />
       <div className="flex">
         <Sidebar />
-        <main className="p-4 w-[80%] flex gap-4">
-          <div className="w-[25%]">
-            <AddRfidData onAddSuccess={refreshData} initialData={editData} />
-          </div>
-          <div className="w-[75%]">
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div>
-                <label className="block font-semibold mb-1">Location</label>
-                <Select
-                  id="locationList"
-                  value={selectedLocation}
-                  onChange={handleLocationChange}
-                  options={locationList}
-                  placeholder="Location"
-                />
-              </div>
-              <div>
-                <label className="block font-semibold mb-1">Shelve</label>
-                <Select
-                  id="shelveList"
-                  value={selectedShelve}
-                  onChange={handleShelveChange}
-                  options={shelveList}
-                  placeholder="Select Shelve"
-                />
-              </div>
-              <div>
-                <label className="block font-semibold mb-1">Status</label>
-                <Select
-                  id="statusList"
-                  value={selectedOption}
-                  onChange={handleChange}
-                  options={options}
-                  placeholder="Status"
-                />
-              </div>
+        <main className="p-4 w-[80%]">
+          <Link href="/container-management/add">
+            <div className="mb-4 inline-block bg-green-600 text-white py-2 px-4 rounded-md shadow hover:bg-green-700 transition duration-200 ease-in-out">
+              Add New Data
             </div>
-            <DataTable data={data} onEdit={handleEdit} />
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
+          </Link>
+          <div className="flex space-x-4 mb-6">
+            <div className="flex-1">
+              <label className="block font-semibold mb-1">Location</label>
+              <Select
+                id="locationList"
+                value={selectedLocation}
+                onChange={handleLocationChange}
+                options={locationList}
+                placeholder="Location"
+                isClearable
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block font-semibold mb-1">Shelve</label>
+              <Select
+                id="shelveList"
+                value={selectedShelve}
+                onChange={handleShelveChange}
+                options={shelveList}
+                placeholder="Select Shelve"
+                isClearable
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block font-semibold mb-1">Status</label>
+              <Select
+                id="statusList"
+                value={selectedOption}
+                onChange={handleChange}
+                options={options}
+                placeholder="Status"
+                isClearable
+              />
+            </div>
           </div>
+          <DataTable data={data} onEdit={handleEdit} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </main>
       </div>
     </>

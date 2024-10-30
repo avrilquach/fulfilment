@@ -23,17 +23,17 @@ export async function GET(req: Request) {
     const offset = (page - 1) * limit;
 
     // Base query
-    let query = `SELECT * FROM container_management`;
-    let query2 = `SELECT COUNT(*) as count FROM container_management`;
+    let query = `SELECT cm.*, l.name as name_location, s.name as name_shelve, b.name as name_bin FROM container_management cm JOIN location l ON cm.location_id = l.id JOIN shelve s ON cm.shelve_id = s.id JOIN bin b ON cm.bin_id = b.id`;
+    let query2 = `SELECT COUNT(*) as count FROM container_management cm JOIN location l ON cm.location_id = l.id JOIN shelve s ON cm.shelve_id = s.id JOIN bin b ON cm.bin_id = b.id`;
 
     // Handle filters
     const conditions: string[] = [];
 
     if (location) {
-      conditions.push(`location = '${location}'`);
+      conditions.push(`cm.location_id = '${location}'`);
     }
     if (shelve) {
-      conditions.push(`shelve = '${shelve}'`);
+      conditions.push(`cm.shelve_id = '${shelve}'`);
     }
     if (status) {
       conditions.push(`status = '${status}'`);

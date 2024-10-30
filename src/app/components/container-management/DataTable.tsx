@@ -3,12 +3,13 @@
 import React, {useState} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
+import Link from 'next/link';
 
 interface TableRow {
   id: number;
-  location: string;
-  shelve: string;
-  bin: string;
+  name_location: string;
+  name_shelve: string;
+  name_bin: string;
   container_id: string;
   status: number;
 }
@@ -37,17 +38,18 @@ const DataTable: React.FC<DataTableProps> = ({  data, onEdit }) => {
         <tbody>
         {data.length > 0 ? (
           data.map((row,index) => (
+            console.log("row",row),
             <tr key={index} className={`bg-gray-100`}>
               <td className="py-2 px-4 border-b">{row.id}</td>
-              <td className="py-2 px-4 border-b">{row.location}</td>
-              <td className="py-2 px-4 border-b">{row.shelve}</td>
-              <td className="py-2 px-4 border-b">{row.bin}</td>
+              <td className="py-2 px-4 border-b">{row.name_location}</td>
+              <td className="py-2 px-4 border-b">{row.name_shelve}</td>
+              <td className="py-2 px-4 border-b">{row.name_bin}</td>
               <td className="py-2 px-4 border-b">{row.container_id}</td>
               <td className="py-2 px-4 border-b">{row.status}</td>
               <td className="border border-gray-300 p-2">
-                <button
-                  className="text-blue-500"
-                  onClick={() => onEdit(row)}>Edit</button>
+                <Link href={`/container-management/edit/${row.id}`}>
+                  <div className="text-blue-500 hover:underline">Edit</div>
+                </Link>
               </td>
             </tr>
           ))

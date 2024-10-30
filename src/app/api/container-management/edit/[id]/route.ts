@@ -1,15 +1,18 @@
-// src/app/api/rfid-management/edit/route.ts
+// src/app/api/rfid-management/edit/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { getConnection } from '@/lib/db';
 import { ResultSetHeader } from 'mysql2/promise';
 
-export async function PUT(req: Request) {
-  // Explicitly typing 'req' as 'Request'
-  const { id, location, shelve, bin, container_id, status }: { id: number; location: string; shelve: string; bin: string; container_id: string; status: string; } = await req.json();
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  // Lấy id từ URL params
+  const id = parseInt(params.id, 10);
 
-  // Kiểm tra xem tất cả các trường cần thiết đã được cung cấp
-  if (!id || !location || !shelve || !bin || !container_id || !status) {
-    return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
+  // Lấy dữ liệu từ yêu cầu
+  const { container_id, status }: { container_id: string; status: string; } = await req.json();
+
+  // Kiểm tra xem các trường cần thiết đã được cung cấp
+  if (!id || !status) {
+    return NextResponse.json({ message: 'Container ID and status are required' }, { status: 400 });
   }
 
   try {
@@ -18,13 +21,13 @@ export async function PUT(req: Request) {
     // Truy vấn cập nhật dữ liệu
     const query = `
       UPDATE container_management
-      SET location = ?, shelve = ?, bin = ?, container_id = ?, status = ?
+      SET container_id = ?, status = ?, updated_at = NOW()
       WHERE id = ?
     `;
 
     // Thực hiện truy vấn cập nhật dữ liệu
     const [result] = await connection.execute<ResultSetHeader>(query, [
-      location, shelve, bin, container_id, status, id,
+      container_id, status, id,
     ]);
 
     // Kiểm tra xem đã cập nhật thành công hay chưa

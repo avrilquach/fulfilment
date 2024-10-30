@@ -17,11 +17,11 @@ export async function GET(req) {
     const offset = (page - 1) * limit;
 
     // Truy vấn để lấy dữ liệu phân trang
-    const query = `SELECT pl.*, z.name AS zone_name, b.name AS bin_name FROM parts_list pl LEFT JOIN zone z ON pl.zone_id = z.id LEFT JOIN bin b ON pl.bin_id = b.id LIMIT ${limit} OFFSET ${offset}`;
+    const query = `SELECT pl.*, z.name AS zone_name, b.name AS bin_name FROM parts_list pl LEFT JOIN location z ON pl.zone_id = z.id LEFT JOIN bin b ON pl.bin_id = b.id LIMIT ${limit} OFFSET ${offset}`;
     const [rows] = await connection.execute(query);
 
     // Truy vấn để lấy tổng số mục
-    const [totalRows] = await connection.execute('SELECT COUNT(*) AS count FROM parts_list pl LEFT JOIN zone z ON pl.zone_id = z.id LEFT JOIN bin b ON pl.bin_id = b.id');
+    const [totalRows] = await connection.execute('SELECT COUNT(*) AS count FROM parts_list pl LEFT JOIN location z ON pl.zone_id = z.id LEFT JOIN bin b ON pl.bin_id = b.id');
     const totalCount = totalRows[0].count;
 
     // Gửi phản hồi với danh sách các phần
