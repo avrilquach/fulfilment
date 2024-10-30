@@ -36,7 +36,7 @@ export async function GET(req: Request) {
       conditions.push(`cm.shelve_id = '${shelve}'`);
     }
     if (status) {
-      conditions.push(`status = '${status}'`);
+      conditions.push(`cm.status = '${status}'`);
     }
 
     if (conditions.length > 0) {
