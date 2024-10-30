@@ -27,7 +27,7 @@ const AddDataPage: React.FC = () => {
 
   const getDataLocation = async () => {
     try {
-      const response = await fetch('/api/container-management/location');
+      const response = await fetch('/api/container-management/location/getAll');
       const data = await response.json();
       const locations = data.rows.map((location: { id: number; name: string }) => ({
         value: location.id,

@@ -32,13 +32,12 @@ const DataTable: React.FC<DataTableProps> = ({  data, onEdit }) => {
           <th className="py-2 px-4 border-b text-left">Bin</th>
           <th className="py-2 px-4 border-b text-left">Container ID</th>
           <th className="py-2 px-4 border-b text-left">Status</th>
-          <th className="py-2 px-4 border-b text-left"></th>
+          <th className="py-2 px-4 border-b text-left">Actions</th>
         </tr>
         </thead>
         <tbody>
         {data.length > 0 ? (
           data.map((row,index) => (
-            console.log("row",row),
             <tr key={index} className={`bg-gray-100`}>
               <td className="py-2 px-4 border-b">{row.id}</td>
               <td className="py-2 px-4 border-b">{row.name_location}</td>
@@ -48,7 +47,7 @@ const DataTable: React.FC<DataTableProps> = ({  data, onEdit }) => {
               <td className="py-2 px-4 border-b">{row.status}</td>
               <td className="border border-gray-300 p-2">
                 <Link href={`/container-management/edit/${row.id}`}>
-                  <div className="text-blue-500 hover:underline">Edit</div>
+                  <button className="bg-yellow-500 text-white px-2 py-1 rounded mr-2">Edit</button>
                 </Link>
               </td>
             </tr>

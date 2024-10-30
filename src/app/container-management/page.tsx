@@ -70,7 +70,7 @@ export default function Page() {
 
   const getDataLocation = async () => {
     try {
-      const response = await fetch('/api/container-management/location', {
+      const response = await fetch('/api/container-management/location/getAll', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -146,11 +146,6 @@ export default function Page() {
       <div className="flex">
         <Sidebar />
         <main className="p-4 w-[80%]">
-          <Link href="/container-management/add">
-            <div className="mb-4 inline-block bg-green-600 text-white py-2 px-4 rounded-md shadow hover:bg-green-700 transition duration-200 ease-in-out">
-              Add New Data
-            </div>
-          </Link>
           <div className="flex space-x-4 mb-6">
             <div className="flex-1">
               <label className="block font-semibold mb-1">Location</label>
@@ -162,6 +157,11 @@ export default function Page() {
                 placeholder="Location"
                 isClearable
               />
+              <Link href="/container-management/location">
+                <button className="mt-4 mb-4 inline-block bg-blue-600 text-white py-2 px-4 rounded-md shadow hover:bg-blue-700 transition duration-200 ease-in-out">
+                  Add Location
+                </button>
+              </Link>
             </div>
             <div className="flex-1">
               <label className="block font-semibold mb-1">Shelve</label>
@@ -186,6 +186,11 @@ export default function Page() {
               />
             </div>
           </div>
+          <Link href="/container-management/add">
+            <button className="mb-4 inline-block bg-green-600 text-white py-2 px-4 rounded-md shadow hover:bg-green-700 transition duration-200 ease-in-out">
+              Add New Data
+            </button>
+          </Link>
           <DataTable data={data} onEdit={handleEdit} />
           <Pagination
             currentPage={currentPage}

@@ -4,16 +4,11 @@ import React, { useState, useEffect } from 'react';
 // Nếu bạn sử dụng react-select
 import Select from 'react-select';
 interface Sku {
-  sku_id: string;
-  name: string;
-  qty_per_container: number;
-  unit: string;
-  active: number;
-  zone: string | null;
-  bu: string | null;
+  supplier_sku: string;
+  cm_part_description: string;
 }
 
-const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
+const SkuRfidManager = () => {
   const [selectedSku, setSelectedSku] = useState('');
   const [rfidList, setRfidList] = useState(''); // Chuyển đổi thành mảng
   const [skuList, setSkuList] = useState<any[]>([]);
@@ -24,10 +19,6 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
   const [selectedSkuDetails, setSelectedSkuDetails] = useState<{
     value: string;
     name: string;
-    qty_per_container: number;
-    unit: string;
-    active: number;
-    bu: string | null;
   } | null>(null);
 
   // Fetch SKU list and Shelves list
@@ -48,15 +39,12 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
         }
         const skuData = await skuResponse.json();
 
+        console.log("skuData",skuData);
         // Explicitly typing the sku in the map function
         setSkuList(skuData.rows.map((sku: Sku) => ({
-          value: sku.sku_id,
-          label: sku.sku_id, // You might want to use sku.name here for better clarity
-          name: sku.name,
-          qty_per_container: sku.qty_per_container,
-          unit: sku.unit,
-          active: sku.active,
-          bu: sku.bu,
+          value: sku.supplier_sku,
+          label: sku.supplier_sku, // You might want to use sku.name here for better clarity
+          name: sku.cm_part_description,
         })));
       } catch (err:any) {
         setError(err.message);
@@ -75,10 +63,6 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
       setSelectedSkuDetails({
         value: selectedSkuItem.value,
         name: selectedSkuItem.name,
-        qty_per_container: selectedSkuItem.qty_per_container,
-        unit: selectedSkuItem.unit,
-        active: selectedSkuItem.active,
-        bu: selectedSkuItem.bu,
       });
     } else {
       setSelectedSkuDetails(null);
@@ -113,31 +97,20 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
 
     const tat_sku = selectedSkuDetails ? selectedSkuDetails.value : '';
     const selectedSkuName = selectedSkuDetails ? selectedSkuDetails.name : '';
-    const selectedSkuQty = selectedSkuDetails ? selectedSkuDetails.qty_per_container : '';
-    const selectedSkuUnit = selectedSkuDetails ? selectedSkuDetails.unit : '';
-    const selectedSkuBu = selectedSkuDetails ? selectedSkuDetails.bu : '';
 
     setSaving(true); // Bắt đầu loading khi lưu
 
     // Lặp qua từng RFID
     for (const rfid of rfidArray) {
       try {
-        const response = await fetch('/api/parts', {
+        const response = await fetch('/api/bin-stock-management/add', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            cm_part_id: '',
-            name: selectedSkuName, // Lưu thông tin SKU name
-            qty_container: selectedSkuQty,
-            unit: selectedSkuUnit,
-            status: 'Empty', // Giả sử bạn có thông tin này từ state
-            fill_date: '', // Ngày điền
-            bu: selectedSkuBu, // Giả sử bạn có thông tin này từ state
             tat_sku: tat_sku,
             container_rfid: rfid, // Hoặc tên biến khác tùy theo yêu cầu
-            created_at:  new Date().toISOString(),
           }),
         });
         if (!response.ok) {
@@ -152,7 +125,6 @@ const SkuRfidManager = ({ onSave }: { onSave: () => void }) => {
       }
     }
     setSaving(false); // Kết thúc loading sau khi hoàn tất vòng lặp
-    onSave();
   };
 
   if (loading) {

@@ -10,6 +10,13 @@ const Sidebar = () => {
       <nav>
         <ul>
           <li className="mb-4">
+            <Link href="/items-management">
+              <div className={`hover:bg-gray-600 p-2 rounded transition duration-200 ${pathname === '/items-management' ? 'bg-blue-600' : ''}`}>
+                Items management
+              </div>
+            </Link>
+          </li>
+          <li className="mb-4">
             <Link href="/container-management">
               <div className={`hover:bg-gray-600 p-2 rounded transition duration-200 ${pathname === '/container-management' ? 'bg-blue-600' : ''}`}>
                 Container management
@@ -17,9 +24,9 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="mb-4 hidden">
-            <Link href="/sku-rfid-management">
-              <div className={`hover:bg-gray-600 p-2 rounded transition duration-200 ${pathname === '/sku-rfid-management' ? 'bg-blue-600' : ''}`}>
-                SKU & RFID management
+            <Link href="/bin-stock-management">
+              <div className={`hover:bg-gray-600 p-2 rounded transition duration-200 ${pathname === '/bin-stock-management' ? 'bg-blue-600' : ''}`}>
+                Bin stock management
               </div>
             </Link>
           </li>

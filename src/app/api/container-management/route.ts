@@ -44,6 +44,8 @@ export async function GET(req: Request) {
       query2 += ` WHERE ${conditions.join(' AND ')}`;
     }
 
+    query += ` LIMIT ${limit} OFFSET ${offset}`;
+
     // Execute data query
     const [rows] = await connection.execute(query);
 

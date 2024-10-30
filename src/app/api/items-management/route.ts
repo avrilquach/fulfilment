@@ -18,8 +18,8 @@ export async function GET(req: Request) {
     const offset = (page - 1) * limit;
 
     // Base query
-    let query = `SELECT * from location`;
-    const query2 = `SELECT COUNT(*) as count FROM location`;
+    let query = `SELECT * FROM items_management`;
+    const query2 = `SELECT COUNT(*) as count FROM items_management`;
 
     query += ` LIMIT ${limit} OFFSET ${offset}`;
 

@@ -29,7 +29,7 @@ export default function Page() {
         email: data.user.email,
         company_name: data.user.company_name, // Lưu company_name vào Redux state
       }));
-      router.push('/');
+      router.push('/items-management');
     } else {
       alert(data.message);
     }
