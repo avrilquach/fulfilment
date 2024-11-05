@@ -1,9 +1,8 @@
-"use client"; // Specify that this is a client component
+"use client";
 import React, { useEffect, useState, useCallback } from 'react';
 import Header from "../../../components/header";
 import Sidebar from "../../../components/Sidebar";
-import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Select from "react-select";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -16,29 +15,16 @@ const EditDataPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [containerId, setContainerId] = useState('');
+  const [firstContainerId, setFirstContainerId] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<any>({ value: 'Inactive', label: 'Inactive' });
   const [editData, setEditData] = useState<any>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const statusOptions = [
     { value: 'Inactive', label: 'Inactive' },
     { value: 'Empty', label: 'Empty' },
     { value: 'Full', label: 'Full' },
   ];
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/container-management/getAll');
-      if (!response.ok) throw new Error('Failed to fetch data');
-      const allData = await response.json();
-      setData(allData);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   const loadEditData = useCallback(async () => {
     setLoading(true);
@@ -47,6 +33,9 @@ const EditDataPage: React.FC = () => {
       if (!response.ok) throw new Error('Failed to fetch data');
       const allData = await response.json();
       setEditData(allData);
+      setSelectedDate(allData[0]?.fill_date ? new Date(allData[0].fill_date) : null);
+      setContainerId(allData[0]?.container_id || '');
+      setFirstContainerId(allData[0]?.container_id || '');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -55,17 +44,28 @@ const EditDataPage: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    fetchData();
     loadEditData();
-  }, [fetchData, loadEditData]); // Include loadEditData here
+  }, [loadEditData]);
 
-  const handleStatusChange = (selectedOption: any) => {
-    setSelectedStatus(selectedOption);
-  };
+  useEffect(() => {
+    if (!firstContainerId) return;
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/api/container-management/get/container-id/${firstContainerId}`);
+        if (!response.ok) throw new Error('Failed to fetch data');
+        const allData = await response.json();
+        setData(allData);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [firstContainerId]);
 
-  const checkContainerIdExists = (containerId: string): boolean => {
-    return data ? data.some((item: any) => item.container_id === containerId) : false;
-  };
+  const handleStatusChange = (selectedOption: any) => setSelectedStatus(selectedOption);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,13 +73,10 @@ const EditDataPage: React.FC = () => {
     setError(null);
 
     try {
-      if (containerId) {
-        const exists = checkContainerIdExists(containerId);
-        if (exists) {
-          setError('Container ID already exists. Update not allowed.');
-          setLoading(false);
-          return;
-        }
+      if (containerId && data?.some((item: any) => item.container_id === containerId)) {
+        setError('Container ID already exists. Update not allowed.');
+        setLoading(false);
+        return;
       }
 
       const response = await fetch(`/api/container-management/edit/${id}`, {
@@ -90,12 +87,11 @@ const EditDataPage: React.FC = () => {
         body: JSON.stringify({
           container_id: containerId,
           status: selectedStatus.value,
-          fill_date: moment(selectedDate).format('YYYY-MM-DD HH:mm:ss'),
+          fill_date: selectedDate ? moment(selectedDate).format('YYYY-MM-DD HH:mm:ss') : null,
         }),
       });
 
       if (!response.ok) throw new Error('Failed to update data');
-
       router.push('/container-management');
     } catch (err: any) {
       setError(err.message);

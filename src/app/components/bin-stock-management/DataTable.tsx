@@ -50,7 +50,6 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
         <tbody>
         {data.length > 0 ? (
           data.map((row,index) => (
-            console.log(row),
             <tr key={index} className={`bg-gray-100`}>
               <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{row.cm_part_id}</td>
