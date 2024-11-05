@@ -17,11 +17,29 @@ export async function GET(req) {
     const offset = (page - 1) * limit;
 
     // Truy vấn để lấy dữ liệu phân trang
-    const query = `SELECT pl.*, z.name AS zone_name, b.name AS bin_name FROM parts_list pl LEFT JOIN location z ON pl.zone_id = z.id LEFT JOIN bin b ON pl.bin_id = b.id LIMIT ${limit} OFFSET ${offset}`;
+    const query = `SELECT
+                                          bsm.*,
+                                          cm.*,
+                                          im.*,
+                                          l.name AS location_name,
+                                          b.name AS bin_name,
+                                          s.name AS shelve_name
+                                      FROM
+                                          bin_stock_management bsm
+                                      LEFT JOIN
+                                          container_management cm ON bsm.container_rfid = cm.container_id
+                                      LEFT JOIN
+                                          location l ON cm.location_id = l.id
+                                      LEFT JOIN
+                                          bin b ON cm.bin_id = b.id
+                                      LEFT JOIN
+                                          shelve s ON cm.shelve_id = s.id
+                                      LEFT JOIN
+                                       items_management AS im ON bsm.tat_sku = im.supplier_sku LIMIT ${limit} OFFSET ${offset}`;
     const [rows] = await connection.execute(query);
 
     // Truy vấn để lấy tổng số mục
-    const [totalRows] = await connection.execute('SELECT COUNT(*) AS count FROM parts_list pl LEFT JOIN location z ON pl.zone_id = z.id LEFT JOIN bin b ON pl.bin_id = b.id');
+    const [totalRows] = await connection.execute('SELECT COUNT(*) AS count FROM      bin_stock_management bsm LEFT JOIN      container_management cm ON bsm.container_rfid = cm.container_id LEFT JOIN      location l ON cm.location_id = l.id LEFT JOIN      bin b ON cm.bin_id = b.id LEFT JOIN      shelve s ON cm.shelve_id = s.id LEFT JOIN items_management AS im ON bsm.tat_sku = im.supplier_sku; ');
     const totalCount = totalRows[0].count;
 
     // Gửi phản hồi với danh sách các phần

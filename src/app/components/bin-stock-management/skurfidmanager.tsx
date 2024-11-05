@@ -39,7 +39,6 @@ const SkuRfidManager = () => {
         }
         const skuData = await skuResponse.json();
 
-        console.log("skuData",skuData);
         // Explicitly typing the sku in the map function
         setSkuList(skuData.rows.map((sku: Sku) => ({
           value: sku.supplier_sku,

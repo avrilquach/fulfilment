@@ -16,8 +16,19 @@ export default function Page() {
   const [totalCount, setTotalCount] = useState(0);
 
   const fetchData = useCallback(async () => {
-
-  }, []); // Add dependencies here
+    try {
+      const response = await fetch(`/api/bin-stock-management?page=${currentPage}&limit=${itemsPerPage}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const result = await response.json();
+      setData(result.data);
+      setTotalCount(result.totalCount);
+    } catch (error: any) {
+      console.error('Fetch error:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, itemsPerPage]); // Add dependencies here
 
   useEffect(() => {
     fetchData();

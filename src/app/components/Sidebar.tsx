@@ -23,7 +23,7 @@ const Sidebar = () => {
               </div>
             </Link>
           </li>
-          <li className="mb-4 hidden">
+          <li className="mb-4">
             <Link href="/bin-stock-management">
               <div className={`hover:bg-gray-600 p-2 rounded transition duration-200 ${pathname === '/bin-stock-management' ? 'bg-blue-600' : ''}`}>
                 Bin stock management
