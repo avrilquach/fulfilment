@@ -3,12 +3,18 @@
 import React, { useState, useEffect } from 'react';
 // Nếu bạn sử dụng react-select
 import Select from 'react-select';
+import {useRouter} from "next/navigation";
 interface Sku {
   supplier_sku: string;
   cm_part_description: string;
 }
 
-const SkuRfidManager = () => {
+interface SkuRfidManagerProps {
+  onSaveComplete: () => void;
+}
+
+const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
+  const router = useRouter();
   const [selectedSku, setSelectedSku] = useState('');
   const [rfidList, setRfidList] = useState(''); // Chuyển đổi thành mảng
   const [skuList, setSkuList] = useState<any[]>([]);
@@ -124,6 +130,8 @@ const SkuRfidManager = () => {
       }
     }
     setSaving(false); // Kết thúc loading sau khi hoàn tất vòng lặp
+    // Call the parent callback to refresh the data
+    onSaveComplete();
   };
 
   if (loading) {

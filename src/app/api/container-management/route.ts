@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   let page = parseInt(searchParams.get('page') ?? "1");
-  let limit = parseInt(searchParams.get('limit') ?? "15");
+  let limit = parseInt(searchParams.get('limit') ?? "10");
 
   // Get filter parameters
   const location = searchParams.get('location');
@@ -44,7 +44,9 @@ export async function GET(req: Request) {
       query2 += ` WHERE ${conditions.join(' AND ')}`;
     }
 
-    query += ` LIMIT ${limit} OFFSET ${offset}`;
+    query += ` ORDER BY cm.id ASC LIMIT ${limit} OFFSET ${offset}`;
+
+    console.log("query",query);
 
     // Execute data query
     const [rows] = await connection.execute(query);

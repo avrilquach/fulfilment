@@ -39,9 +39,10 @@ export default function Page() {
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-  const handleSave = async () => {
-    await fetchData();
+  const handleSaveComplete = () => {
+    fetchData(); // Refresh the data after saving
   };
+
   return (
     <>
       <Header />
@@ -49,7 +50,7 @@ export default function Page() {
         <Sidebar />
         <main className="flex-grow p-5">
           <div>
-            <SkuRfidManager/>
+            <SkuRfidManager onSaveComplete={handleSaveComplete}/>
             <div className="col-span-3">
               <DataTable data={data} /> {/* Truyền dữ liệu vào DataTable */}
               <Pagination

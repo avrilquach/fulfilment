@@ -1,9 +1,16 @@
 "use client"; // This is a client component
 import { useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
+
+interface User {
+  company_name: string;
+  // Add other properties if needed
+}
 
 const Header = () => {
-  // Lấy thông tin người dùng từ Redux store
-  const user = useSelector((state:any) => state.user); // Lấy trạng thái người dùng từ Redux
+  const router = useRouter();
+  const user = useSelector((state: any) => state.user) as User | null;
+
   const handleLogout = async () => {
     try {
       const response = await fetch('/api/logout', {
@@ -14,12 +21,9 @@ const Header = () => {
       });
 
       if (response.ok) {
-        // Handle successful logout, e.g., redirecting to the login page or showing a message
         console.log('Successfully logged out');
-        // Optionally, redirect:
-        window.location.href = '/login';
+        router.push('/login');
       } else {
-        // Handle error response
         console.error('Logout failed');
       }
     } catch (error) {
@@ -27,22 +31,39 @@ const Header = () => {
     }
   };
 
+  const handleSettings = () => {
+    router.push('/items-management');
+  };
+
+  const handleHome = () => {
+    router.push('/');
+  };
+
   return (
     <header className="bg-[#232f3e] text-white p-4">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-white">{user.company_name}</h1>
-          <h2 className="text-sm text-white">C-part management - BU & Zone view</h2>
+        {/* Left Side: Company Name and Tagline */}
+        <div onClick={handleHome} className={"cursor-pointer"}>
+          <h1 className="text-3xl font-bold">{user?.company_name || 'Company Name'}</h1>
+          <h2 className="text-sm">C-part management - BU & Zone view</h2>
         </div>
-        <div className="flex flex-col items-end">
+
+        {/* Right Side: Action Buttons */}
+        <div className="flex items-center space-x-4">
+          {/* Settings Button */}
+          <button
+            onClick={handleSettings}
+            className="bg-[#34a853] hover:bg-[#4bc769] text-white font-semibold py-2 px-4 rounded"
+          >
+            Settings
+          </button>
+
+          {/* Log Out Button */}
           <button
             onClick={handleLogout}
-            className="bg-[#faa51a] hover:bg-[#f8c75a] text-white font-semibold py-2 px-4 rounded mb-2"
+            className="bg-[#d93025] hover:bg-[#ea4335] text-white font-semibold py-2 px-4 rounded"
           >
-            Account logged
-          </button>
-          <button className="hidden bg-[#faa51a] hover:bg-[#f8c75a]  text-white font-semibold py-2 px-4 rounded">
-            Purchase Order
+            Log Out
           </button>
         </div>
       </div>

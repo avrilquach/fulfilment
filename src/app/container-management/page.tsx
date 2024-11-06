@@ -35,7 +35,7 @@ export default function Page() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage] = useState<number>(15);
+  const [itemsPerPage] = useState<number>(10);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<Option | null>(null);
   const [editData, setEditData] = useState<any | null>(null);
@@ -158,7 +158,7 @@ export default function Page() {
                 isClearable
               />
               <Link href="/container-management/location">
-                <button className="mt-4 mb-4 inline-block bg-blue-600 text-white py-2 px-4 rounded-md shadow hover:bg-blue-700 transition duration-200 ease-in-out">
+                <button className="hidden mt-4 mb-4 inline-block bg-blue-600 text-white py-2 px-4 rounded-md shadow hover:bg-blue-700 transition duration-200 ease-in-out">
                   Add Location
                 </button>
               </Link>

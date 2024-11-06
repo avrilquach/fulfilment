@@ -39,7 +39,7 @@ const DataTable: React.FC<DataTableProps> = ({  data, onEdit }) => {
         {data.length > 0 ? (
           data.map((row,index) => (
             <tr key={index} className={`bg-gray-100`}>
-              <td className="py-2 px-4 border-b">{row.id}</td>
+              <td className="py-2 px-4 border-b">{index + 1}</td>
               <td className="py-2 px-4 border-b">{row.name_location}</td>
               <td className="py-2 px-4 border-b">{row.name_shelve}</td>
               <td className="py-2 px-4 border-b">{row.name_bin}</td>

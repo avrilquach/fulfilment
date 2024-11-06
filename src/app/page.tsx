@@ -1,68 +1,78 @@
-"use client";
-
-import React, { useEffect, useState } from 'react';
+'use client';
 import Header from './components/header';
-import Sidebar from './components/Sidebar';
-import DataTable from './components/items-management/DataTable';
-import Pagination from "./components/pagination";
+import React, { useEffect, useState } from 'react';
+import Sidebar from "./components/business/Sidebar";
 
-interface Item {
-  id: number;
-  cm_part_id: string;
-  cm_part_description: string;
-  unit: string;
-  stock: number;
-  min_stock: number;
-  max_stock: number;
-  supplier_sku: string;
+interface BusinessDataItem {
+  location_name: string;
+  full_count?: number;
+  shelver_count?: number;
+  total_empty_full_count?: number;
+  progress?: number; // Assuming there's a field for progress in the data if available
 }
 
-export default function ItemsPage() {
-  const [data, setData] = useState<Item[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(15);
-  const [totalCount, setTotalCount] = useState<number>(0);
+export default function Page() {
+  // Specify the type of `data` as `BusinessDataItem[]`
+  const [data, setData] = useState<BusinessDataItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch items from API
   useEffect(() => {
-    const fetchItems = async () => {
-      setLoading(true);
-      setError(null); // Reset error state before fetching
+    const fetchData = async () => {
       try {
-        const response = await fetch(`/api/items-management?page=${currentPage}&limit=${itemsPerPage}`);
-        if (!response.ok) throw new Error('Failed to fetch data');
-
-        const result = await response.json();
-        setData(result.data);
-        setTotalCount(result.total[0].count);
-      } catch (error: any) {
-        setError(error.message); // Set error message
+        const response = await fetch('/api/business');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        // Specify the type for `result`
+        const result: { rows: BusinessDataItem[] } = await response.json();
+        setData(result.rows);
+      } catch (error) {
+        console.error('Fetch error:', error);
       } finally {
-        setLoading(false); // Ensure loading state is turned off
+        setLoading(false);
       }
     };
 
-    fetchItems();
-  }, [currentPage, itemsPerPage]); // Include itemsPerPage in dependencies
+    fetchData();
+  }, []);
 
-  const totalPages = Math.ceil(totalCount / itemsPerPage);
-  if (loading) return <div className="flex justify-center items-center h-screen text-lg">Loading...</div>;
-  if (error) return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>;
   return (
     <>
       <Header />
       <div className="flex">
         <Sidebar />
-        <main className="p-4 w-[80%]">
-          <h1 className="text-2xl font-semibold mb-4">Items Management</h1>
-          <DataTable data={data} />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+        <main className="p-6 w-full lg:w-[80%] bg-gray-50">
+          <h1 className="text-3xl font-bold mb-8 text-gray-800">Business Unit I</h1>
+          {loading ? (
+            <div className="flex justify-center items-center">
+              <div className="w-16 h-16 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {data.map((item, index) => {
+                const progress =
+                  item.full_count && item.total_empty_full_count
+                    ? (item.full_count * 100) / item.total_empty_full_count
+                    : 0; // Safely calculate progress
+                return (
+                  <div key={index} className="p-6 bg-white border rounded-xl shadow-lg transform transition-all hover:scale-105 hover:shadow-xl">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">{item.location_name}</h2>
+                    <p className="text-gray-700">Shelves qty.: {item.shelver_count ?? 'N/A'}</p>
+                    <p className="text-gray-700">Containers qty.: {item.total_empty_full_count ?? 'N/A'}</p>
+                    <p className="text-gray-700 mt-2">Item Balance status:</p>
+                    <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden mt-2">
+                      <div
+                        className="bg-green-500 h-full text-center text-white text-sm font-medium flex items-center justify-center transition-all"
+                        style={{ width: `${progress}%` }}
+                      >
+                        {progress}%
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </main>
       </div>
     </>
