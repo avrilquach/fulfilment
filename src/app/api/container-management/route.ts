@@ -15,9 +15,8 @@ export async function GET(req: Request) {
   // Ensure non-negative parameters
   if (limit < 1) limit = 1;
   if (page < 1) page = 1;
-
+  const connection = await getConnection();
   try {
-    const connection = await getConnection();
 
     // Calculate offset
     const offset = (page - 1) * limit;
@@ -46,8 +45,6 @@ export async function GET(req: Request) {
 
     query += ` ORDER BY cm.id ASC LIMIT ${limit} OFFSET ${offset}`;
 
-    console.log("query",query);
-
     // Execute data query
     const [rows] = await connection.execute(query);
 
@@ -59,5 +56,7 @@ export async function GET(req: Request) {
   } catch (error) {
     console.error('Error fetching parts:', error);
     return NextResponse.json({ message: 'Something went wrong' }, { status: 500 });
+  }finally {
+    connection.end();
   }
 }

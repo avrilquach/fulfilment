@@ -33,9 +33,11 @@ const Sidebar = () => {
   return (
     <aside className="bg-gray-700 text-gray-200 w-[20%] h-screen p-5 shadow-lg">
       <Link href="/">
-        <h2 className={`mb-4 hover:bg-gray-600 p-2 rounded transition duration-200 ${pathname === '/' ? 'bg-blue-600' : ''}`}>Business Unit I</h2> {/* Added title here */}
+        <h2 className={`mb-4 hover:bg-gray-600 p-2 rounded transition duration-200 ${pathname === '/' ? 'bg-blue-600' : ''}`}>
+          Business Unit I
+        </h2>
       </Link>
-      <nav className={"ml-4"}>
+      <nav className="ml-4">
         <ul>
           {/* Loading State */}
           {loading && (
@@ -49,10 +51,10 @@ const Sidebar = () => {
           {locationList.length > 0 && !loading && !error ? (
             locationList.map((location) => (
               <li key={location.id} className="mb-4">
-                <Link href="/">
+                <Link href={`/business/${location.id}`}>
                   <div
                     className={`hover:bg-gray-600 p-2 rounded transition duration-200 ${
-                      pathname === `/container-management/location/${location.id}` ? 'bg-blue-600' : ''
+                      pathname === `/business/${location.id}` ? 'bg-blue-600' : ''
                     }`}
                   >
                     {location.name}

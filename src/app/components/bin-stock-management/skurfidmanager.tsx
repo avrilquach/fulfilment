@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 // Nếu bạn sử dụng react-select
 import Select from 'react-select';
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
+
 interface Sku {
   supplier_sku: string;
   cm_part_description: string;
@@ -21,7 +22,7 @@ const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
   const [saving, setSaving] = useState(false); // Loading state for saving
-  // State để lưu thông tin SKU đã chọn
+  const [qtyPerContainer, setQtyPerContainer] = useState<number>(1); // New state for qty_per_container
   const [selectedSkuDetails, setSelectedSkuDetails] = useState<{
     value: string;
     name: string;
@@ -51,7 +52,7 @@ const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
           label: sku.supplier_sku, // You might want to use sku.name here for better clarity
           name: sku.cm_part_description,
         })));
-      } catch (err:any) {
+      } catch (err: any) {
         setError(err.message);
       } finally {
         setLoading(false);
@@ -61,7 +62,7 @@ const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
     fetchData();
   }, []);
 
-  const handleSkuChange = (selectedOption:any) => {
+  const handleSkuChange = (selectedOption: any) => {
     setSelectedSku(selectedOption);
     const selectedSkuItem = skuList.find(sku => sku.value === selectedOption.value);
     if (selectedSkuItem) {
@@ -78,8 +79,15 @@ const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
     setRfidList(event.target.value);
   };
 
-  const handleSave = async () => {
+  const handleQtyPerContainerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    // Ensure the value is a valid number and set the state
+    if (value && !isNaN(Number(value))) {
+      setQtyPerContainer(Number(value));
+    }
+  };
 
+  const handleSave = async () => {
     // Kiểm tra xem SKU đã được chọn hay chưa
     if (!selectedSku) {
       alert('SKU Code is required!');
@@ -116,6 +124,7 @@ const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
           body: JSON.stringify({
             tat_sku: tat_sku,
             container_rfid: rfid, // Hoặc tên biến khác tùy theo yêu cầu
+            qty_per_container: qtyPerContainer, // Include qty_per_container in the request
           }),
         });
         if (!response.ok) {
@@ -158,7 +167,7 @@ const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
             placeholder="Select SKU Code"
           />
         </div>
-        <div>
+        <div className="mb-6">
           {/* Label và Input cho tên sản phẩm */}
           <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-2">
             Product Name
@@ -169,6 +178,20 @@ const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
             value={selectedSkuDetails?.name || ''} // Gán tên sản phẩm từ selectedSkuDetails
             readOnly
             className="block w-full border border-gray-300 rounded-md p-3 bg-gray-100"
+          />
+        </div>
+        {/* Input cho qty_per_container */}
+        <div>
+          <label htmlFor="qtyPerContainer" className="block text-sm font-medium text-gray-700 mb-2">
+            Quantity per Container
+          </label>
+          <input
+            id="qtyPerContainer"
+            type="number"
+            value={qtyPerContainer}
+            onChange={handleQtyPerContainerChange}
+            min="1"
+            className="block w-full border border-gray-300 rounded-md p-3"
           />
         </div>
       </div>
@@ -187,15 +210,13 @@ const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
         ></textarea>
       </div>
       <div>
-        <div className="flex items-end h-full">
-          <button
-            onClick={handleSave}
-            disabled={saving} // Vô hiệu hóa nút khi đang lưu
-            className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {saving ? 'Saving...' : 'Save'}
-          </button>
-        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving} // Vô hiệu hóa nút khi đang lưu
+          className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          {saving ? 'Saving...' : 'Save'}
+        </button>
       </div>
       {saving && (
         <div className="flex justify-center mt-4">

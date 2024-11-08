@@ -14,6 +14,7 @@ interface TableRow {
   min_stock: number;
   max_stock: number;
   supplier_sku: string;
+  product_link: string;
 }
 
 interface DataTableProps {
@@ -48,7 +49,14 @@ const DataTable: React.FC<DataTableProps> = ({  data }) => {
               <td className="py-2 px-4 border-b">{row.stock}</td>
               <td className="py-2 px-4 border-b">{row.min_stock}</td>
               <td className="py-2 px-4 border-b">{row.max_stock}</td>
-              <td className="py-2 px-4 border-b">{row.supplier_sku}</td>
+              <td className="py-2 px-4 border-b"><Link
+                href={row.product_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-700 font-semibold underline"
+              >
+                {row.supplier_sku}
+              </Link></td>
             </tr>
           ))
         ) : (

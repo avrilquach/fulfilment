@@ -6,6 +6,7 @@ import { RowDataPacket, ResultSetHeader } from 'mysql2/promise';
 // Define an interface for the expected request body
 interface AddBinStockRequest {
   tat_sku: string;
+  qty_per_container: number;
   container_rfid: string;
 }
 
@@ -15,10 +16,10 @@ export async function POST(req: Request) {
     const body: AddBinStockRequest = await req.json();
 
     // Destructure the properties
-    const { tat_sku, container_rfid } = body;
+    const { tat_sku,qty_per_container, container_rfid } = body;
 
     // Kiểm tra dữ liệu đầu vào
-    if (!tat_sku || !container_rfid) {
+    if (!tat_sku || !qty_per_container || !container_rfid) {
       return NextResponse.json({ message: 'TAT SKU và Container RFID là bắt buộc.' }, { status: 400 });
     }
 
@@ -35,13 +36,13 @@ export async function POST(req: Request) {
     }
 
     const query = `
-      INSERT INTO bin_stock_management (tat_sku, container_rfid)
-      VALUES (?, ?)
+      INSERT INTO bin_stock_management (tat_sku, qty_per_container, container_rfid)
+      VALUES (?, ?, ?)
     `;
 
     // Use type assertion on result to explicitly tell TypeScript it's a ResultSetHeader
     const [result] = await connection.execute<ResultSetHeader>(query, [
-      tat_sku, container_rfid,
+      tat_sku, qty_per_container, container_rfid,
     ]);
 
     if (result.insertId) {

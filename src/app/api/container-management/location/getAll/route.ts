@@ -5,10 +5,11 @@ export async function GET() {
   const connection = await getConnection();
   try {
     const [rows] = await connection.execute('SELECT * FROM location');
-    const response = NextResponse.json({ message: 'Message successful' ,rows}, { status: 200 });
-    return response;
+    return NextResponse.json({ message: 'Message successful', rows }, { status: 200 });
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json({ message: 'Server error' }, { status: 500 });
+  } finally {
+    connection.end();
   }
 }

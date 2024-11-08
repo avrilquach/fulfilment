@@ -6,7 +6,8 @@ import Sidebar from "./components/business/Sidebar";
 interface BusinessDataItem {
   location_name: string;
   full_count?: number;
-  shelver_count?: number;
+  shelve_count?: number;
+  total_container_count?: number;
   total_empty_full_count?: number;
   progress?: number; // Assuming there's a field for progress in the data if available
 }
@@ -57,8 +58,8 @@ export default function Page() {
                 return (
                   <div key={index} className="p-6 bg-white border rounded-xl shadow-lg transform transition-all hover:scale-105 hover:shadow-xl">
                     <h2 className="text-xl font-semibold text-gray-900 mb-2">{item.location_name}</h2>
-                    <p className="text-gray-700">Shelves qty.: {item.shelver_count ?? 'N/A'}</p>
-                    <p className="text-gray-700">Containers qty.: {item.total_empty_full_count ?? 'N/A'}</p>
+                    <p className="text-gray-700">Shelves qty.: {item.shelve_count ?? 'N/A'}</p>
+                    <p className="text-gray-700">Containers qty.: {item.total_container_count ?? 'N/A'}</p>
                     <p className="text-gray-700 mt-2">Item Balance status:</p>
                     <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden mt-2">
                       <div

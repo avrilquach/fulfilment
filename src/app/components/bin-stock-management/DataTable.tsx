@@ -20,6 +20,7 @@ interface TableRow {
   bin_id: string;
   bin_name:string;
   container_rfid: string;
+  qty_per_container: number;
 }
 
 interface DataTableProps {
@@ -55,7 +56,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
               <td className="py-2 px-4 border-b">{row.cm_part_id}</td>
               <td className="py-2 px-4 border-b">{row.tat_sku}</td>
               <td className="py-2 px-4 border-b">{row.cm_part_description}</td>
-              <td className="py-2 px-4 border-b">{row.min_stock}</td>
+              <td className="py-2 px-4 border-b">{row.qty_per_container}</td>
               <td className="py-2 px-4 border-b">{row.unit}</td>
               <td className="py-2 px-4 border-b">{row.status}</td>
               <td className="py-2 px-4 border-b">{moment(row.fill_date).format('DD/MM/YYYY')}</td>
