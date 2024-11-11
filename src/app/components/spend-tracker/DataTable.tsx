@@ -1,9 +1,6 @@
-// DataTable.tsx
 'use client';
-import React, {useState} from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
 import moment from 'moment';
-import SelectedRow from '../SelectedRow'; // Import SelectedRow component
 
 interface TableRow {
   id: number;
@@ -35,16 +32,36 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
         {data.length > 0 ? (
           data.map((row) => (
             <tr key={row.id}>
-              <td className="py-2 px-4 border-b">{row.sku}</td>
-              <td className="py-2 px-4 border-b">{row.rfid}</td>
-              <td className="py-2 px-4 border-b">{row.qty}</td>
-              <td className="py-2 px-4 border-b">{row.status}</td>
-              <td className="py-2 px-4 border-b">{moment(row.time).format('DD/MM/YYYY')}</td>
+              <td
+                className={`py-2 px-4 border-b ${row.status === 'Empty' ? 'bg-yellow-300' : ''}`}
+              >
+                {row.sku}
+              </td>
+              <td
+                className={`py-2 px-4 border-b ${row.status === 'Empty' ? 'bg-yellow-300' : ''}`}
+              >
+                {row.rfid}
+              </td>
+              <td
+                className={`py-2 px-4 border-b ${row.status === 'Empty' ? 'bg-yellow-300' : ''}`}
+              >
+                {row.qty}
+              </td>
+              <td
+                className={`py-2 px-4 border-b ${row.status === 'Empty' ? 'bg-yellow-300' : ''}`}
+              >
+                {row.status}
+              </td>
+              <td
+                className={`py-2 px-4 border-b ${row.status === 'Empty' ? 'bg-yellow-300' : ''}`}
+              >
+                {moment(row.time).format('DD/MM/YYYY')}
+              </td>
             </tr>
           ))
         ) : (
           <tr>
-            <td colSpan={13} className="py-2 px-4 border-b text-center">
+            <td colSpan={5} className="py-2 px-4 border-b text-center">
               No data available
             </td>
           </tr>

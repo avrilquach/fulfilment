@@ -31,6 +31,7 @@ interface DataItem {
 export default function Page() {
   // Define state variables for data, pagination, Sku, time filters, and list of Sku options
   const [data, setData] = useState<DataItem[]>([]); // Define a better type for data
+  const [dataTotal, setDataTotal] = useState<DataItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedSku, setSelectedSku] = useState<SkuOption | null>(null); // State for selected SKU
@@ -38,6 +39,7 @@ export default function Page() {
   const [selectedTime, setSelectedTime] = useState<TimeOption | null>(null); // State for selected time filter
   const [timeOptions, setTimeOptions] = useState<TimeOption[]>([]); // Type time options
   const [isLoading, setIsLoading] = useState(false); // Loading state
+  const pricePerUnit = 2; // Define a fixed price per unit
 
   // Fetch SKU list (replace with your API endpoint for SKUs)
   useEffect(() => {
@@ -90,7 +92,10 @@ export default function Page() {
         const timeQuery = selectedTime ? `&time=${selectedTime.value}` : ''; // Add time filter if selected
         const response = await fetch(`/api/spend-tracker?page=${currentPage}&limit=10${skuQuery}${timeQuery}`);
         const result = await response.json();
+        const responseTotal = await fetch(`/api/spend-tracker/getAll`);
+        const resultTotal = await responseTotal.json();
         setData(result.data); // Assuming `data` is in the result
+        setDataTotal(resultTotal.rows);
         setTotalPages(Math.ceil(result.total[0].count / 10)); // Assuming `total` is the total count of items
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -111,6 +116,15 @@ export default function Page() {
   const handleTimeChange = (selectedOption: TimeOption | null) => {
     setSelectedTime(selectedOption); // Set selected time
   };
+
+  // Function to calculate total value for "Empty" containers
+  const calculateEmptyTotalValue = (data: DataItem[]) => {
+    const emptyContainers = dataTotal.filter(item => item.status === 'Empty'); // Filter "Empty" containers
+    return emptyContainers.length * pricePerUnit; // Multiply by price per unit
+  };
+
+  const totalValue = calculateEmptyTotalValue(data); // Call function to calculate total value for "Empty" containers
+
 
   return (
     <>
@@ -155,6 +169,11 @@ export default function Page() {
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
               />
+              {/* Total value for empty containers */}
+              <div className="mt-4 p-4 bg-gray-100 rounded flex items-center">
+                <h2 className="text-lg font-semibold">Total Value for Empty Containers:</h2>
+                <p className="text-xl font-bold ml-4">{totalValue.toFixed(2)} USD</p>
+              </div>
             </>
           )}
         </main>
