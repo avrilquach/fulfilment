@@ -67,6 +67,11 @@ const Sidebar = () => {
           )}
         </ul>
       </nav>
+      <Link href="/spend-tracker">
+        <h2 className={`mb-4 hover:bg-gray-600 p-2 rounded transition duration-200 ${pathname === '/spend-tracker' ? 'bg-blue-600' : ''}`}>
+          Spend Tracker
+        </h2>
+      </Link>
     </aside>
   );
 };

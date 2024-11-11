@@ -15,7 +15,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       SELECT cm.*, 
              l.name AS location_name, 
              s.name AS shelve_name, 
-             b.name AS bin_name 
+             b.name AS bin_name
       FROM container_management cm
       JOIN location l ON cm.location_id = l.id
       JOIN shelve s ON cm.shelve_id = s.id

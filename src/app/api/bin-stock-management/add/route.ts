@@ -46,6 +46,14 @@ export async function POST(req: Request) {
     ]);
 
     if (result.insertId) {
+      const spendTrackerQuery = `
+        INSERT INTO spend_tracker (sku, rfid, qty, status, time)
+        VALUES (?, ?, ?, ?, NOW())
+      `;
+
+      await connection.execute(spendTrackerQuery, [
+        tat_sku, container_rfid, qty_per_container, 'Full',
+      ]);
       return NextResponse.json({ message: 'Data added successfully', id: result.insertId }, { status: 201 });
     } else {
       return NextResponse.json({ message: 'Failed to add data' }, { status: 500 });

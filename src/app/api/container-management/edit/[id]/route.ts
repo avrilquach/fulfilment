@@ -11,11 +11,6 @@ export async function PUT(req: Request) {
 
   const { container_id, status, fill_date } = await req.json();
 
-  // Kiểm tra dữ liệu đầu vào
-  if (!status) {
-    return NextResponse.json({ message: 'Container ID và Status là bắt buộc.' }, { status: 400 });
-  }
-
   try {
     const connection = await getConnection();
 

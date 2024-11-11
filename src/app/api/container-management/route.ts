@@ -22,7 +22,7 @@ export async function GET(req: Request) {
     const offset = (page - 1) * limit;
 
     // Base query
-    let query = `SELECT cm.*, l.name as name_location, s.name as name_shelve, b.name as name_bin FROM container_management cm JOIN location l ON cm.location_id = l.id JOIN shelve s ON cm.shelve_id = s.id JOIN bin b ON cm.bin_id = b.id`;
+    let query = `SELECT cm.*, l.name as name_location, s.name as name_shelve, b.name as name_bin, bsm.container_rfid AS bin_stock_container_id FROM container_management cm JOIN location l ON cm.location_id = l.id JOIN shelve s ON cm.shelve_id = s.id JOIN bin b ON cm.bin_id = b.id LEFT JOIN bin_stock_management bsm ON cm.container_id = bsm.container_rfid`;
     let query2 = `SELECT COUNT(*) as count FROM container_management cm JOIN location l ON cm.location_id = l.id JOIN shelve s ON cm.shelve_id = s.id JOIN bin b ON cm.bin_id = b.id`;
 
     // Handle filters

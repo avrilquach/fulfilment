@@ -208,14 +208,12 @@ const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
           onChange={handleRfidChange}
           className="block w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
         ></textarea>
-      </div>
-      <div>
         <button
           onClick={handleSave}
           disabled={saving} // Vô hiệu hóa nút khi đang lưu
-          className={`bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`mt-6 inline-block bg-green-600 text-white py-2 px-4 rounded-md shadow hover:bg-green-700 transition duration-200 ease-in-out ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          {saving ? 'Saving...' : 'Save'}
+          {saving ? 'Saving...' : 'Add New Data'}
         </button>
       </div>
       {saving && (

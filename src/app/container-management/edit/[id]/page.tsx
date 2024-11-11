@@ -3,36 +3,37 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Header from "../../../components/header";
 import Sidebar from "../../../components/Sidebar";
 import { useRouter, useParams } from 'next/navigation';
-import Select from "react-select";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from "moment";
 
+interface ContainerData {
+  container_id: string;
+  location_name: string;
+  shelve_name: string;
+  bin_name: string;
+  fill_date: string | null;
+  status: string;
+}
+
 const EditDataPage: React.FC = () => {
   const router = useRouter();
   const { id } = useParams();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<ContainerData[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [containerId, setContainerId] = useState('');
   const [firstContainerId, setFirstContainerId] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<any>({ value: 'Inactive', label: 'Inactive' });
-  const [editData, setEditData] = useState<any>(null);
+  const [editData, setEditData] = useState<ContainerData | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-
-  const statusOptions = [
-    { value: 'Inactive', label: 'Inactive' },
-    { value: 'Empty', label: 'Empty' },
-    { value: 'Full', label: 'Full' },
-  ];
 
   const loadEditData = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`/api/container-management/get/${id}`);
       if (!response.ok) throw new Error('Failed to fetch data');
-      const allData = await response.json();
-      setEditData(allData);
+      const allData: ContainerData[] = await response.json();
+      setEditData(allData[0]);
       setSelectedDate(allData[0]?.fill_date ? new Date(allData[0].fill_date) : null);
       setContainerId(allData[0]?.container_id || '');
       setFirstContainerId(allData[0]?.container_id || '');
@@ -54,7 +55,7 @@ const EditDataPage: React.FC = () => {
       try {
         const response = await fetch(`/api/container-management/get/container-id/${firstContainerId}`);
         if (!response.ok) throw new Error('Failed to fetch data');
-        const allData = await response.json();
+        const allData: ContainerData[] = await response.json();
         setData(allData);
       } catch (err: any) {
         setError(err.message);
@@ -65,30 +66,43 @@ const EditDataPage: React.FC = () => {
     fetchData();
   }, [firstContainerId]);
 
-  const handleStatusChange = (selectedOption: any) => setSelectedStatus(selectedOption);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      if (containerId && data?.some((item: any) => item.container_id === containerId)) {
+      // Check if containerId is duplicate
+      if (containerId && data?.some((item) => item.container_id === containerId)) {
         setError('Container ID already exists. Update not allowed.');
         setLoading(false);
         return;
       }
+
+      // Determine the status based on editData and containerId presence
+      let status;
+      if (!containerId) {
+        status = "Inactive";
+      } else if (editData?.status === "Inactive" && containerId) {
+        status = "Full";
+      }
+      else{
+        status = editData?.status;
+      }
+
+      // Construct the request body
+      const requestBody = {
+        container_id: containerId,
+        fill_date: selectedDate ? moment(selectedDate).format('YYYY-MM-DD HH:mm:ss') : null,
+        status, // Set status based on the conditions above
+      };
 
       const response = await fetch(`/api/container-management/edit/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          container_id: containerId,
-          status: selectedStatus.value,
-          fill_date: selectedDate ? moment(selectedDate).format('YYYY-MM-DD HH:mm:ss') : null,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) throw new Error('Failed to update data');
@@ -98,6 +112,10 @@ const EditDataPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleNewDateClick = () => {
+    setSelectedDate(new Date());
   };
 
   if (loading) return <div className="flex justify-center items-center h-screen text-lg">Loading...</div>;
@@ -113,24 +131,33 @@ const EditDataPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex">
               <label className="block font-semibold mb-1 mr-1">Location:</label>
-              <span>{editData && editData[0]?.location_name}</span>
+              <span>{editData?.location_name}</span>
             </div>
             <div className="flex">
               <label className="block font-semibold mb-1 mr-1">Shelve:</label>
-              <span>{editData && editData[0]?.shelve_name}</span>
+              <span>{editData?.shelve_name}</span>
             </div>
             <div className="flex">
               <label className="block font-semibold mb-1 mr-1">Bin:</label>
-              <span>{editData && editData[0]?.bin_name}</span>
+              <span>{editData?.bin_name}</span>
             </div>
-            <div>
-              <label className="block font-semibold mb-1">Fill Date</label>
-              <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                dateFormat="dd/MM/yyyy"
-                className="border px-2 py-1 rounded"
-              />
+            <div className="flex items-center space-x-2">
+              <div>
+                <label className="block font-semibold mb-1">Fill Date</label>
+                <DatePicker
+                  selected={selectedDate}
+                  onChange={setSelectedDate}
+                  dateFormat="dd/MM/yyyy"
+                  className="border px-2 py-1 rounded"
+                />
+                <button
+                  type="button"
+                  onClick={handleNewDateClick}
+                  className="bg-gray-300 text-black py-1 px-2 rounded"
+                >
+                  New Date
+                </button>
+              </div>
             </div>
             <div>
               <label className="block font-semibold mb-1">Container ID</label>
@@ -140,17 +167,6 @@ const EditDataPage: React.FC = () => {
                 onChange={(e) => setContainerId(e.target.value)}
                 className="border p-2 w-full"
                 placeholder="Enter container ID"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">Status</label>
-              <Select
-                value={selectedStatus}
-                onChange={handleStatusChange}
-                options={statusOptions}
-                isClearable
-                placeholder="Select status"
-                className="w-full"
               />
             </div>
             <button
