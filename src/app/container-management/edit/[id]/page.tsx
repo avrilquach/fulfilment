@@ -84,7 +84,7 @@ const EditDataPage: React.FC = () => {
       if (!containerId) {
         status = "Inactive";
       } else if (editData?.status === "Inactive" && containerId) {
-        status = "Full";
+        status = "Empty";
       }
       else{
         status = editData?.status;
@@ -93,7 +93,6 @@ const EditDataPage: React.FC = () => {
       // Construct the request body
       const requestBody = {
         container_id: containerId,
-        fill_date: selectedDate ? moment(selectedDate).format('YYYY-MM-DD HH:mm:ss') : null,
         status, // Set status based on the conditions above
       };
 
@@ -141,7 +140,7 @@ const EditDataPage: React.FC = () => {
               <label className="block font-semibold mb-1 mr-1">Bin:</label>
               <span>{editData?.bin_name}</span>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 hidden">
               <div>
                 <label className="block font-semibold mb-1">Fill Date</label>
                 <DatePicker

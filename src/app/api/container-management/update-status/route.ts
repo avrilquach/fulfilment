@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     // Update the container_management table status
     const updateQuery = `
       UPDATE container_management
-      SET status = ?
+      SET status = ?, fill_date = NOW()
       WHERE id = ?
     `;
     const [result] = await connection.execute<ResultSetHeader>(updateQuery, [status, id]);

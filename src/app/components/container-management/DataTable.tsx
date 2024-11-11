@@ -21,10 +21,12 @@ interface DataTableProps {
 
 const DataTable: React.FC<DataTableProps> = ({ data, onEdit }) => {
   const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [selectedRow, setSelectedRow] = useState<TableRow | null>(null);
 
   // Function to handle status button click and call API
   const handleStatusClick = async (row: TableRow) => {
-    const newStatus = row.status === "Empty" ? "Full" : "Empty";
+    const newStatus = 'Full' ;
     setLoadingId(row.id);  // Show loading animation for this button
 
     try {
@@ -46,15 +48,33 @@ const DataTable: React.FC<DataTableProps> = ({ data, onEdit }) => {
         alert(result.message);
 
         // Refresh the page using window.location.href
-        window.location.href = "/container-management";  // This reloads the page
+        window.location.href = '/container-management';  // This reloads the page
       } else {
-        console.error("API error:", result.message);
+        console.error('API error:', result.message);
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error('Error:', error);
     } finally {
       setLoadingId(null);  // Hide loading animation
     }
+  };
+
+  const handleFulfillClick = (row: TableRow) => {
+    setSelectedRow(row);  // Set the selected row to show in modal
+    setShowModal(true);  // Show the modal
+  };
+
+  const handleConfirmFulfill = async () => {
+    if (!selectedRow) return;
+
+    // Call the status update function
+    await handleStatusClick({
+      ...selectedRow,
+      status: 'Full', // Set status to 'Full'
+      fill_date: moment().format('DD/MM/YYYY'), // Set current date as fill date
+    });
+
+    setShowModal(false);  // Close modal after confirming
   };
 
   return (
@@ -84,38 +104,36 @@ const DataTable: React.FC<DataTableProps> = ({ data, onEdit }) => {
               <td className="py-2 px-4 border-b">
                 {moment(row.fill_date).format('DD/MM/YYYY')}
               </td>
-              <td className="py-2 px-4 border-b">{row.status}</td>
+              <td className="py-2 px-4 border-b">
+                <div
+                  className={`text-white text-center px-2 py-1 rounded ${
+                    row.status === 'Inactive'
+                      ? 'bg-gray-500'
+                      : row.status === 'Empty'
+                        ? 'bg-red-500'
+                        : row.status === 'Full'
+                          ? 'bg-green-500' // Fix for Full status
+                          : 'bg-gray-500'
+                  }`}
+                >
+                  {row.status}
+                </div>
+              </td>
               <td className="border border-gray-300 p-2">
-                {/* Show RFID button if bin_stock_container_id is null */}
-                {row.bin_stock_container_id === null ? (
+                {row.status === 'Empty' && (
+                  <>
                   <Link href={`/container-management/edit/${row.id}`} target="_blank">
                     <button className="bg-yellow-500 text-white px-2 py-1 rounded mr-2">
-                      RFID
+                      Edit
                     </button>
                   </Link>
-                ) : (
-                  // Show status buttons (Full/Empty) if bin_stock_container_id is not null
-                  loadingId === row.id ? (
-                    <button className="bg-gray-400 text-white px-2 py-1 rounded" disabled>
-                      Loading...
-                    </button>
-                  ) : (
-                    row.status === "Empty" ? (
-                      <button
-                        className="bg-green-500 text-white px-2 py-1 rounded"
-                        onClick={() => handleStatusClick(row)}
-                      >
-                        Full
-                      </button>
-                    ) : (
-                      <button
-                        className="bg-orange-500 text-white px-2 py-1 rounded"
-                        onClick={() => handleStatusClick(row)}
-                      >
-                        Empty
-                      </button>
-                    )
-                  )
+                  {row.bin_stock_container_id &&  <button
+	                  onClick={() => handleFulfillClick(row)} // Calling the modal show function
+	                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
+                  >
+	                  Fulfill
+                  </button>}
+                  </>
                 )}
               </td>
             </tr>
@@ -129,6 +147,35 @@ const DataTable: React.FC<DataTableProps> = ({ data, onEdit }) => {
         )}
         </tbody>
       </table>
+
+      {/* Modal for Fulfill confirmation */}
+      {showModal && selectedRow && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg w-1/3">
+            <h2 className="text-xl font-semibold mb-4">
+              Do you want to use this RFID to fill the container?
+            </h2>
+            <div className="mb-4">
+              <p><strong>Status:</strong> Full</p>
+              <p><strong>Fill Date:</strong> {moment().format('DD/MM/YYYY')}</p>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={handleConfirmFulfill}
+                className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => setShowModal(false)} // Close the modal
+                className="bg-red-500 text-white px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

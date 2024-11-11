@@ -9,14 +9,14 @@ export async function PUT(req: Request) {
   const url = new URL(req.url);
   const id = url.pathname.split('/').pop(); // Assuming the last part of the URL is the ID
 
-  const { container_id, status, fill_date } = await req.json();
+  const { container_id, status } = await req.json();
 
   try {
     const connection = await getConnection();
 
     const query = `
       UPDATE container_management
-      SET container_id = ?, status = ?, fill_date = ?
+      SET container_id = ?, status = ?
       WHERE id = ?
     `;
 
@@ -24,7 +24,6 @@ export async function PUT(req: Request) {
     const values = [
       container_id,
       status,
-      fill_date === undefined ? null : fill_date, // Set fill_date to null if it's undefined
       id, // Use the extracted ID here
     ];
 
