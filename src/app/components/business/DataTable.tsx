@@ -17,6 +17,7 @@ interface TableRow {
   fullfilment_triggered?: string; // Optional column for fulfillment status
   full_count: number;  // Full count
   empty_count: number; // Empty count
+  shelve_id: number;
 }
 
 interface DataTableProps {
@@ -54,7 +55,11 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
             return (
               <tr key={row.cm_part_id} className={`bg-gray-100`}>
                 <td className="py-2 px-4 border-b">{row.location}</td>
-                <td className="py-2 px-4 border-b">{row.shelve}</td>
+                <td className="py-2 px-4 border-b">
+                  <Link href={`/shelve/grid/${row.shelve_id}`} rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 font-semibold underline">
+                    {row.shelve}
+                  </Link>
+                </td>
                 <td className="py-2 px-4 border-b">{row.bin_names}</td>
                 <td className="py-2 px-4 border-b">{row.cm_part_id}</td>
                 <td className="py-2 px-4 border-b">
