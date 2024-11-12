@@ -5,8 +5,9 @@ import Header from '../../components/header';
 import Sidebar from "../../components/business/Sidebar";
 import Pagination from "../../components/pagination";
 import Link from "next/link";
-import {useParams} from "next/navigation";
+import { useParams } from "next/navigation";
 import DataTable from "../../components/business/DataTable";
+import Breadcrumb from '../../components/business/Breadcrumb';
 
 interface Item {
   id: number;
@@ -32,6 +33,9 @@ interface Item {
 
 export default function ItemsPage() {
   const { id } = useParams();
+  // Ensure `id` is treated as a string, even if it's an array
+  const idAsString = Array.isArray(id) ? id[0] : id;
+
   const [data, setData] = useState<Item[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +49,7 @@ export default function ItemsPage() {
       setLoading(true);
       setError(null); // Reset error state before fetching
       try {
-        const response = await fetch(`/api/business/get?id=${id}&page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await fetch(`/api/business/get?id=${idAsString}&page=${currentPage}&limit=${itemsPerPage}`);
         if (!response.ok) throw new Error('Failed to fetch data');
 
         const result = await response.json();
@@ -59,18 +63,20 @@ export default function ItemsPage() {
     };
 
     fetchItems();
-  }, [currentPage, itemsPerPage,id]); // Include itemsPerPage in dependencies
+  }, [currentPage, itemsPerPage, idAsString]); // Include idAsString in dependencies
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
   if (loading) return <div className="flex justify-center items-center h-screen text-lg">Loading...</div>;
   if (error) return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>;
+
   return (
     <>
       <Header />
       <div className="flex">
         <Sidebar />
         <main className="p-4 w-[80%]">
-          <DataTable data={data} /> {/* Truyền dữ liệu vào DataTable */}
+          <Breadcrumb location_id={idAsString} /> {/* Pass the id as a string */}
+          <DataTable data={data} /> {/* Pass the fetched data to DataTable */}
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

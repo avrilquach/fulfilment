@@ -48,7 +48,11 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
               <tr key={index} className={`bg-gray-100`}>
                 <td className="py-2 px-4 border-b">{index + 1}</td>
                 <td className="py-2 px-4 border-b">{row.location_name}</td>
-                <td className="py-2 px-4 border-b">{row.shelve_id}</td>
+                <td className="py-2 px-4 border-b">
+                  <Link href={`/shelve/grid/${row.shelve_id}`} rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 font-semibold underline">
+                    {row.shelve_id}
+                  </Link>
+                </td>
                 <td className="py-2 px-4 border-b">{row.bin_name}</td>
                 <td className="py-2 px-4 border-b">{row.container_rfid}</td>
                 <td className="py-2 px-4 border-b">{row.cm_part_id}</td>

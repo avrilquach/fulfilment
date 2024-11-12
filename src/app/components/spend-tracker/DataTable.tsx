@@ -55,7 +55,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
               <td
                 className={`py-2 px-4 border-b ${row.status === 'Empty' ? 'bg-yellow-300' : ''}`}
               >
-                {moment(row.time).format('DD/MM/YYYY')}
+                {moment(row.time).format('DD/MM/YYYY HH:mm:ss')}
               </td>
             </tr>
           ))

@@ -21,7 +21,7 @@ interface RackIDProps {
 }
 
 const RackID: React.FC<RackIDProps> = ({ rackId, data }) => {
-  const rowColors = ['bg-blue-500', 'bg-yellow-500'];
+  const rowColors = ['', 'bg-[#f6a21e]'];
   const inputRef = useRef<HTMLInputElement>(null);
   const [rfidInput, setRfidInput] = useState('');
   const [error, setError] = useState<string | null>(null); // Error state
@@ -75,7 +75,7 @@ const RackID: React.FC<RackIDProps> = ({ rackId, data }) => {
 
   return (
     <div className="w-full mx-auto border-4 border-gray-800 rounded-lg shadow-lg p-4 bg-gray-50 mb-4">
-      <div className="bg-yellow-400 text-gray-800 font-extrabold text-2xl py-3 rounded-lg shadow-md mb-2 text-center hover:bg-yellow-500 transition-colors duration-300 mb-4">
+      <div className="bg-gray-200 text-black font-extrabold text-2xl py-3 rounded-lg shadow-md mb-2 text-center transition-colors duration-300 mb-4">
         Rack ID: {rackId}
       </div>
 
@@ -110,24 +110,42 @@ const RackID: React.FC<RackIDProps> = ({ rackId, data }) => {
 
       <div className="space-y-3">
         {chunkedData.map((row, rowIndex) => (
-          <div key={rowIndex} className="grid grid-cols-5 gap-4">
+          <div key={rowIndex} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {row.map((bin, binIndex) => {
               const isFull = bin.status === 'Full';
               const binColor = isFull ? rowColors[0] : rowColors[1];
+
               return (
                 <div
                   key={binIndex}
-                  className={`${binColor} flex items-center justify-center w-full h-32 text-white font-bold text-lg rounded-lg shadow-lg transition transform hover:bg-opacity-80 hover:scale-105 duration-200 relative`}
+                  className={`relative ${binColor} p-4 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200 ease-in-out`}
                 >
-                  <div className="text-center">
-                    {bin.bin_name || `Bin ${binIndex + 1}`}
-                    {bin.container_rfid && (
-                      <div className="mt-2 text-xs font-semibold text-white bg-gray-800 p-2 rounded-lg">
-                        RFID: {bin.container_rfid}
+                  <div className="flex flex-col items-center justify-center text-white space-y-2">
+                    <div className="font-bold text-xl text-center">
+                      {bin.bin_name || `Bin ${binIndex + 1}`}
+                    </div>
+
+                    {/* Show the additional information in a separate section */}
+                    <div className="mt-4 space-y-2 text-sm text-white bg-gray-700 p-3 rounded-lg shadow-md w-full">
+                      <div className="flex justify-between">
+                        <span className="font-semibold">Part ID:</span>
+                        <span>{bin.cm_part_id}</span>
                       </div>
-                    )}
+                      <div>
+                        <span className="font-semibold">Description:</span>
+                        <span>{bin.cm_part_description}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-semibold">RFID:</span>
+                        <span>{bin.container_rfid}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-semibold">Qty:</span>
+                        <span>{bin.qty_per_container}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="absolute bottom-1 w-3/5 h-1 bg-gray-800 rounded"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 rounded"></div>
                 </div>
               );
             })}

@@ -7,7 +7,8 @@ import Pagination from "../../../components/pagination";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import DataTable from "../../../components/business/shelve/DataTable";
-import RackID from "../../../components/business/shelve/RackID"; // Import the new RackID component
+import RackID from "../../../components/business/shelve/RackID";
+import Breadcrumb from "../../../components/business/Breadcrumb"; // Import the new RackID component
 
 interface Item {
   location_name: string;
@@ -21,6 +22,7 @@ interface Item {
   status: string;
   fill_date: string;
   bu: string;
+  location_id: string;
 }
 
 export default function ItemsPage() {
@@ -60,6 +62,7 @@ export default function ItemsPage() {
       <div className="flex">
         <Sidebar />
         <main className="p-4 w-[80%]">
+          <Breadcrumb location_id={data[0].location_id} />
           <div className="flex justify-start space-x-6 mb-4">
             <Link href={`/shelve/grid/${id}`} rel="noopener noreferrer" className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline transition duration-200">
               Grid View

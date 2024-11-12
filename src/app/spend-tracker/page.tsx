@@ -1,11 +1,12 @@
-'use client';
+"use client"
+import { useState, useEffect } from 'react';
 import Header from '../components/header';
-import React, { useEffect, useState } from 'react';
 import Sidebar from "../components/business/Sidebar";
 import DataTable from "../components/spend-tracker/DataTable";
 import Pagination from "../components/pagination";
 import Select from "react-select";
 import moment from "moment";
+import * as XLSX from 'xlsx'; // Import thư viện xlsx
 
 // Define the types for SKU and Time options
 interface SkuOption {
@@ -29,22 +30,21 @@ interface DataItem {
 }
 
 export default function Page() {
-  // Define state variables for data, pagination, Sku, time filters, and list of Sku options
   const [data, setData] = useState<DataItem[]>([]); // Define a better type for data
   const [dataTotal, setDataTotal] = useState<DataItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedSku, setSelectedSku] = useState<SkuOption | null>(null); // State for selected SKU
-  const [skuList, setSkuList] = useState<SkuOption[]>([]); // Type the SKU list
-  const [selectedTime, setSelectedTime] = useState<TimeOption | null>(null); // State for selected time filter
-  const [timeOptions, setTimeOptions] = useState<TimeOption[]>([]); // Type time options
-  const [isLoading, setIsLoading] = useState(false); // Loading state
-  const pricePerUnit = 2; // Define a fixed price per unit
+  const [selectedSku, setSelectedSku] = useState<SkuOption | null>(null);
+  const [skuList, setSkuList] = useState<SkuOption[]>([]);
+  const [selectedTime, setSelectedTime] = useState<TimeOption | null>(null);
+  const [timeOptions, setTimeOptions] = useState<TimeOption[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const pricePerUnit = 2;
 
   // Fetch SKU list (replace with your API endpoint for SKUs)
   useEffect(() => {
     const fetchSkuList = async () => {
-      setIsLoading(true); // Start loading
+      setIsLoading(true);
       try {
         const response = await fetch('/api/spend-tracker/sku');
         const result = await response.json();
@@ -55,17 +55,17 @@ export default function Page() {
       } catch (error) {
         console.error("Error fetching SKUs:", error);
       } finally {
-        setIsLoading(false); // Stop loading
+        setIsLoading(false);
       }
     };
 
     fetchSkuList();
   }, []);
 
-  // Fetch time options (replace with your API or static time options)
+  // Fetch time options
   useEffect(() => {
     const fetchTimeOptions = async () => {
-      setIsLoading(true); // Start loading
+      setIsLoading(true);
       try {
         const response = await fetch('/api/spend-tracker/time');
         const result = await response.json();
@@ -76,7 +76,7 @@ export default function Page() {
       } catch (error) {
         console.error("Error fetching time options:", error);
       } finally {
-        setIsLoading(false); // Stop loading
+        setIsLoading(false);
       }
     };
 
@@ -86,45 +86,46 @@ export default function Page() {
   // Fetch data on page load or page change
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true); // Start loading
+      setIsLoading(true);
       try {
-        const skuQuery = selectedSku ? `&sku=${selectedSku.value}` : ''; // Add SKU query if selected
-        const timeQuery = selectedTime ? `&time=${selectedTime.value}` : ''; // Add time filter if selected
+        const skuQuery = selectedSku ? `&sku=${selectedSku.value}` : '';
+        const timeQuery = selectedTime ? `&time=${selectedTime.value}` : '';
         const response = await fetch(`/api/spend-tracker?page=${currentPage}&limit=10${skuQuery}${timeQuery}`);
         const result = await response.json();
         const responseTotal = await fetch(`/api/spend-tracker/getAll`);
         const resultTotal = await responseTotal.json();
-        setData(result.data); // Assuming `data` is in the result
+        setData(result.data);
         setDataTotal(resultTotal.rows);
-        setTotalPages(Math.ceil(result.total[0].count / 10)); // Assuming `total` is the total count of items
+        setTotalPages(Math.ceil(result.total[0].count / 10));
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setIsLoading(false); // Stop loading
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [currentPage, selectedSku, selectedTime]); // Fetch data whenever page, SKU, or time filter changes
+  }, [currentPage, selectedSku, selectedTime]);
 
   // Handle SKU selection change
   const handleSkuChange = (selectedOption: SkuOption | null) => {
-    setSelectedSku(selectedOption); // Set selected SKU
+    setSelectedSku(selectedOption);
   };
 
   // Handle Time selection change
   const handleTimeChange = (selectedOption: TimeOption | null) => {
-    setSelectedTime(selectedOption); // Set selected time
+    setSelectedTime(selectedOption);
   };
 
-  // Function to calculate total value for "Empty" containers
-  const calculateEmptyTotalValue = (data: DataItem[]) => {
-    const emptyContainers = dataTotal.filter(item => item.status === 'Empty'); // Filter "Empty" containers
-    return emptyContainers.length * pricePerUnit; // Multiply by price per unit
+  // Export to Excel function
+  const exportToExcel = () => {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(dataTotal); // Data to export
+    XLSX.utils.book_append_sheet(wb, ws, "Data");
+
+    // Save as Excel file
+    XLSX.writeFile(wb, "Spend_Tracker_Data.xlsx");
   };
-
-  const totalValue = calculateEmptyTotalValue(data); // Call function to calculate total value for "Empty" containers
-
 
   return (
     <>
@@ -155,6 +156,12 @@ export default function Page() {
                 isClearable
               />
             </div>
+            <button
+              className="btn btn-primary ml-4"
+              onClick={exportToExcel}
+            >
+              Export to Excel
+            </button>
           </div>
           <h1 className="text-2xl font-semibold mb-4">Spend Tracker</h1>
 
@@ -169,11 +176,6 @@ export default function Page() {
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
               />
-              {/* Total value for empty containers */}
-              <div className="mt-4 p-4 bg-gray-100 rounded flex items-center">
-                <h2 className="text-lg font-semibold">Total Value for Empty Containers:</h2>
-                <p className="text-xl font-bold ml-4">{totalValue.toFixed(2)} USD</p>
-              </div>
             </>
           )}
         </main>
