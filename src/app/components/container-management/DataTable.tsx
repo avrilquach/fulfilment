@@ -120,19 +120,21 @@ const DataTable: React.FC<DataTableProps> = ({ data, onEdit }) => {
                 </div>
               </td>
               <td className="border border-gray-300 p-2">
-                {row.status === 'Empty' || row.status === 'Inactive' && (
+                {(row.status === 'Empty' || row.status === 'Inactive') && (
                   <>
-                  <Link href={`/container-management/edit/${row.id}`} target="_blank">
-                    <button className="text-black px-2 py-1 rounded mr-2">
-                      Edit
-                    </button>
-                  </Link>
-                  {row.bin_stock_container_id &&  <button
-	                  onClick={() => handleFulfillClick(row)} // Calling the modal show function
-	                  className="text-black px-2 py-1 rounded mr-2"
-                  >
-	                  Fulfill
-                  </button>}
+                    <Link href={`/container-management/edit/${row.id}`} target="_blank">
+                      <button className="text-black px-2 py-1 rounded mr-2">
+                        Edit
+                      </button>
+                    </Link>
+                    {row.bin_stock_container_id && (
+                      <button
+                        onClick={() => handleFulfillClick(row)} // Calling the modal show function
+                        className="text-black px-2 py-1 rounded mr-2"
+                      >
+                        Fulfill
+                      </button>
+                    )}
                   </>
                 )}
               </td>
