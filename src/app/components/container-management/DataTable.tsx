@@ -120,7 +120,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, onEdit }) => {
                 </div>
               </td>
               <td className="border border-gray-300 p-2">
-                {row.status === 'Empty' && (
+                {row.status === 'Empty' && row.status === 'Inactive' && (
                   <>
                   <Link href={`/container-management/edit/${row.id}`} target="_blank">
                     <button className="text-black px-2 py-1 rounded mr-2">
