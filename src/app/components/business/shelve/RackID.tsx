@@ -121,7 +121,7 @@ const RackID: React.FC<RackIDProps> = ({ rackId, data }) => {
                   className={`relative ${binColor} p-4 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200 ease-in-out`}
                 >
                   <div className="flex flex-col items-center justify-center text-white space-y-2">
-                    <div className="font-bold text-xl text-center">
+                    <div className="font-bold text-xl text-center text-black">
                       {bin.bin_name || `Bin ${binIndex + 1}`}
                     </div>
 

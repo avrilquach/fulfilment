@@ -12,6 +12,7 @@ interface TableRow {
   status: string;
   fill_date: string;
   bin_stock_container_id: string;
+  tat_sku: string;
 }
 
 interface DataTableProps {
@@ -160,6 +161,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, onEdit }) => {
             <div className="mb-4">
               <p><strong>Status:</strong> Full</p>
               <p><strong>Fill Date:</strong> {moment().format('DD/MM/YYYY')}</p>
+              <p><strong>SKU:</strong>{selectedRow.tat_sku}</p>
             </div>
             <div className="flex justify-end">
               <button
