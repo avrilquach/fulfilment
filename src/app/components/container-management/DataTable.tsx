@@ -110,10 +110,10 @@ const DataTable: React.FC<DataTableProps> = ({ data, onEdit }) => {
                   className={`text-white text-center px-2 py-1 rounded ${
                     row.status === 'Inactive'
                       ? 'bg-gray-500'
-                      : row.status === 'Empty'
+                      : row.status === 'Empty' && row.bin_stock_container_id
                         ? 'bg-red-500'
                         : row.status === 'Full'
-                          ? 'bg-green-500' // Fix for Full status
+                          ? 'bg-blue-600' // Fix for Full status
                           : 'bg-gray-500'
                   }`}
                 >
@@ -123,12 +123,15 @@ const DataTable: React.FC<DataTableProps> = ({ data, onEdit }) => {
               <td className="border border-gray-300 p-2">
                 {(row.status === 'Empty' || row.status === 'Inactive') && (
                   <>
-                    <Link href={`/container-management/edit/${row.id}`} target="_blank">
-                      <button className="text-black px-2 py-1 rounded mr-2">
-                        Edit
-                      </button>
-                    </Link>
-                    {row.bin_stock_container_id && (
+                    {!row.bin_stock_container_id ? (
+                      // Hiển thị nút Edit nếu không có bin_stock_container_id
+                      <Link href={`/container-management/edit/${row.id}`} target="_blank">
+                        <button className="text-black px-2 py-1 rounded mr-2">
+                          Edit
+                        </button>
+                      </Link>
+                    ) : (
+                      // Hiển thị nút Fulfill nếu có bin_stock_container_id
                       <button
                         onClick={() => handleFulfillClick(row)} // Calling the modal show function
                         className="text-black px-2 py-1 rounded mr-2"
