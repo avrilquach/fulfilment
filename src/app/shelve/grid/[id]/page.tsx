@@ -31,7 +31,7 @@ export default function ItemsPage() {
   const [data, setData] = useState<Item[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [shelveName, setShelveName] = useState<string>('');
   // Fetch items from API
   useEffect(() => {
     const fetchItems = async () => {
@@ -42,6 +42,7 @@ export default function ItemsPage() {
         if (!response.ok) throw new Error('Failed to fetch data');
         const result = await response.json();
         setData(result.data);  // Assuming the response has a 'data' field
+        setShelveName(result.data[0].shelve_name);
       } catch (error: any) {
         setError(error.message); // Set error message
       } finally {
@@ -72,7 +73,7 @@ export default function ItemsPage() {
               List View
             </Link>
           </div>
-          <RackID rackId={rackId} data={data} /> {/* Pass the rackId and data to RackID component */}
+          <RackID rackId={rackId} rackName={shelveName} data={data} /> {/* Pass the rackId and data to RackID component */}
         </main>
       </div>
     </>

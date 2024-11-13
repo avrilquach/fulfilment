@@ -157,11 +157,12 @@ export default function Page() {
               />
             </div>
             <button
-              className="btn btn-primary ml-4"
+              className="ml-4 bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-105"
               onClick={exportToExcel}
             >
               Export to Excel
             </button>
+
           </div>
           <h1 className="text-2xl font-semibold mb-4">Spend Tracker</h1>
 

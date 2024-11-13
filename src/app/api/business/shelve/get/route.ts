@@ -27,9 +27,9 @@ export async function GET(req: Request) {
                                           s.name AS shelve_name,
                                           s.id AS shelve_id
                                       FROM
-                                          bin_stock_management bsm
+                                          container_management cm
                                       LEFT JOIN
-                                          container_management cm ON bsm.container_rfid = cm.container_id
+                                          bin_stock_management bsm ON bsm.container_rfid = cm.container_id
                                       LEFT JOIN
                                           location l ON cm.location_id = l.id
                                       LEFT JOIN
@@ -37,7 +37,7 @@ export async function GET(req: Request) {
                                       LEFT JOIN
                                           shelve s ON cm.shelve_id = s.id
                                       LEFT JOIN
-                                       items_management AS im ON bsm.tat_sku = im.supplier_sku WHERE s.id = ? LIMIT ${limit} OFFSET ${offset}`;
+                                       items_management AS im ON bsm.tat_sku = im.supplier_sku WHERE s.id = ? ORDER BY b.id asc`;
 
     // Execute the query with proper parameter binding
     const [rows] = await connection.execute(query, [id]);

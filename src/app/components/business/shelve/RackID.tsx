@@ -17,11 +17,11 @@ interface BinData {
 
 interface RackIDProps {
   rackId: string;
+  rackName: string;
   data: BinData[];
 }
 
-const RackID: React.FC<RackIDProps> = ({ rackId, data }) => {
-  const rowColors = ['', 'bg-[#f6a21e]'];
+const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [rfidInput, setRfidInput] = useState('');
   const [error, setError] = useState<string | null>(null); // Error state
@@ -76,7 +76,7 @@ const RackID: React.FC<RackIDProps> = ({ rackId, data }) => {
   return (
     <div className="w-full mx-auto border-4 border-gray-800 rounded-lg shadow-lg p-4 bg-gray-50 mb-4">
       <div className="bg-gray-200 text-black font-extrabold text-2xl py-3 rounded-lg shadow-md mb-2 text-center transition-colors duration-300 mb-4">
-        Rack ID: {rackId}
+        Rack ID: {rackName}
       </div>
 
       {/* Display error message if exists */}
@@ -110,28 +110,35 @@ const RackID: React.FC<RackIDProps> = ({ rackId, data }) => {
 
       <div className="space-y-3">
         {chunkedData.map((row, rowIndex) => (
-          <div key={rowIndex} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div key={rowIndex} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4">
             {row.map((bin, binIndex) => {
-              const isFull = bin.status === 'Full';
-              const binColor = isFull ? rowColors[0] : rowColors[1];
+              // Determine background color based on the RFID and status conditions
+              const binColor = !bin.container_rfid
+                ? 'bg-white'
+                : bin.status === 'Full'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-red-500 text-white';
 
               return (
                 <div
                   key={binIndex}
-                  className={`relative ${binColor} p-4 rounded-lg shadow-lg hover:scale-105 transition-transform duration-200 ease-in-out`}
+                  className={`relative ${binColor} p-5 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-200 ease-in-out group`}
                 >
-                  <div className="flex flex-col items-center justify-center text-white space-y-2">
-                    <div className="font-bold text-xl text-center text-black">
+                  {/* Main bin information */}
+                  <div className="flex flex-col items-center text-center space-y-3">
+                    <div className="font-semibold text-lg text-black">
                       {bin.bin_name || `Bin ${binIndex + 1}`}
                     </div>
+                  </div>
 
-                    {/* Show the additional information in a separate section */}
-                    <div className="mt-4 space-y-2 text-sm text-white bg-gray-700 p-3 rounded-lg shadow-md w-full">
+                  {/* Tooltip - only show on hover */}
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:flex w-64 p-3 text-sm text-gray-100 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg transition-opacity duration-300">
+                    <div className="w-full space-y-1">
                       <div className="flex justify-between">
                         <span className="font-semibold">Part ID:</span>
                         <span>{bin.cm_part_id}</span>
                       </div>
-                      <div>
+                      <div className="flex justify-between">
                         <span className="font-semibold">Description:</span>
                         <span>{bin.cm_part_description}</span>
                       </div>
@@ -145,7 +152,6 @@ const RackID: React.FC<RackIDProps> = ({ rackId, data }) => {
                       </div>
                     </div>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800 rounded"></div>
                 </div>
               );
             })}

@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     const offset = (page - 1) * limit;
 
     // SQL query with placeholders
-    let query = `SELECT l.name AS location, s.id AS shelve_id, s.name AS shelve,COUNT(CASE WHEN cm.status = 'Empty' THEN 1 END) AS empty_count,COUNT(CASE WHEN cm.status = 'Full' THEN 1 END) AS full_count,GROUP_CONCAT(b.name ORDER BY b.name ASC) AS bin_names,im.*,bsm.tat_sku,COUNT(b.name) AS bin_count,bsm.qty_per_container,(bsm.qty_per_container * COUNT(b.name)) AS qty,'' AS fullfilment_triggered FROM bin_stock_management bsm LEFT JOIN container_management cm ON bsm.container_rfid = cm.container_id LEFT JOIN location l ON cm.location_id = l.id LEFT JOIN shelve s ON s.id = cm.shelve_id LEFT JOIN bin b ON b.id = cm.bin_id LEFT JOIN items_management im ON im.supplier_sku = bsm.tat_sku WHERE l.id = ? GROUP BY bsm.tat_sku, l.name, s.name, im.cm_part_id`;
+    let query = `SELECT l.name AS location, s.id AS shelve_id, s.name AS shelve,COUNT(CASE WHEN cm.status = 'Empty' THEN 1 END) AS empty_count,COUNT(CASE WHEN cm.status = 'Full' THEN 1 END) AS full_count,GROUP_CONCAT(b.name ORDER BY b.name ASC) AS bin_names,im.*,bsm.tat_sku,COUNT(b.name) AS bin_count,bsm.qty_per_container,(bsm.qty_per_container * COUNT(b.name)) AS qty,'' AS fullfilment_triggered FROM bin_stock_management bsm LEFT JOIN container_management cm ON bsm.container_rfid = cm.container_id LEFT JOIN location l ON cm.location_id = l.id LEFT JOIN shelve s ON s.id = cm.shelve_id LEFT JOIN bin b ON b.id = cm.bin_id LEFT JOIN items_management im ON im.supplier_sku = bsm.tat_sku WHERE l.id = ? GROUP BY bsm.tat_sku, l.name, s.name, im.cm_part_id ORDER BY s.id asc`;
     query += ` LIMIT ${limit} OFFSET ${offset}`;
 
     // Execute the query with proper parameter binding
