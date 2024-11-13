@@ -15,6 +15,7 @@ interface TableRow {
   status: string;
   fill_date: string;
   bu: string;
+  shelve_name:string;
 }
 
 interface DataTableProps {
@@ -50,7 +51,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
                 <td className="py-2 px-4 border-b">{row.location_name}</td>
                 <td className="py-2 px-4 border-b">
                   <Link href={`/shelve/grid/${row.shelve_id}`} rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 font-semibold underline">
-                    {row.shelve_id}
+                    {row.shelve_name}
                   </Link>
                 </td>
                 <td className="py-2 px-4 border-b">{row.bin_name}</td>
