@@ -46,14 +46,14 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
         </thead>
         <tbody>
         {data.length > 0 ? (
-          data.map((row) => {
+          data.map((row,index) => {
             // Calculate the 'process' value
             const process = (row.full_count + row.empty_count) > 0
               ? (row.full_count * 100) / (row.full_count + row.empty_count)
               : 0;
 
             return (
-              <tr key={row.cm_part_id} className={`bg-gray-100`}>
+              <tr key={index} className={`bg-gray-100`}>
                 <td className="py-2 px-4 border-b">{row.location}</td>
                 <td className="py-2 px-4 border-b">
                   <Link href={`/shelve/grid/${row.shelve_id}`} rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 font-semibold underline">
