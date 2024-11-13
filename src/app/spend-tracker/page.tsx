@@ -21,6 +21,7 @@ interface TimeOption {
 
 interface DataItem {
   id: number;
+  part_id: string;
   sku: string;
   rfid: string;
   qty: number;

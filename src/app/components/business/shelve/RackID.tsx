@@ -110,7 +110,7 @@ const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
 
       <div className="space-y-3">
         {chunkedData.map((row, rowIndex) => (
-          <div key={rowIndex} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4">
+          <div key={rowIndex} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {row.map((bin, binIndex) => {
               // Determine background color based on the RFID and status conditions
               const binColor = !bin.container_rfid
@@ -122,34 +122,33 @@ const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
               return (
                 <div
                   key={binIndex}
-                  className={`relative ${binColor} p-5 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-200 ease-in-out group`}
+                  className={`p-5 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-200 ease-in-out ${binColor}`}
                 >
-                  {/* Main bin information */}
-                  <div className="flex flex-col items-center text-center space-y-3">
-                    <div className="font-semibold text-lg text-black">
-                      {bin.bin_name || `Bin ${binIndex + 1}`}
+                  {/* Main bin information - positioned on the left */}
+                  <div className="flex items-center space-x-3">
+                    <div className="absolute left-0 top-0 w-10 h-10 flex items-center justify-center bg-gray-200 text-black rounded-xl">
+                      {/* Bin number on the left side */}
+                      <span className="font-semibold text-lg">{bin.bin_name || `Bin ${binIndex + 1}`}</span>
                     </div>
                   </div>
 
-                  {/* Tooltip - only show on hover */}
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:flex w-64 p-3 text-sm text-gray-100 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg transition-opacity duration-300">
-                    <div className="w-full space-y-1">
-                      <div className="flex justify-between">
-                        <span className="font-semibold">Part ID:</span>
-                        <span>{bin.cm_part_id}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-semibold">Description:</span>
-                        <span>{bin.cm_part_description}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-semibold">RFID:</span>
-                        <span>{bin.container_rfid}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-semibold">Qty:</span>
-                        <span>{bin.qty_per_container}</span>
-                      </div>
+                  {/* Tooltip (always visible) without absolute positioning */}
+                  <div className={`w-full space-y-1 p-3 text-sm text-gray-100 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg ${bin.cm_part_id ? '' : 'opacity-0'}`}>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Part ID:</span>
+                      <span>{bin.cm_part_id}</span>
+                    </div>
+                    <div>
+                      <span className="font-semibold">Description:</span>
+                      <span>{bin.cm_part_description}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">RFID:</span>
+                      <span>{bin.container_rfid}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-semibold">Qty:</span>
+                      <span>{bin.qty_per_container}</span>
                     </div>
                   </div>
                 </div>
