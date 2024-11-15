@@ -29,6 +29,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
         <thead>
         <tr className="bg-gray-200">
           <th className="py-2 px-4 border-b text-left">Index</th>
+          <th className="py-2 px-4 border-b text-left">BU</th>
           <th className="py-2 px-4 border-b text-left">Zone</th>
           <th className="py-2 px-4 border-b text-left">Shelve ID</th>
           <th className="py-2 px-4 border-b text-left">Bin</th>
@@ -39,7 +40,6 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
           <th className="py-2 px-4 border-b text-left">Unit</th>
           <th className="py-2 px-4 border-b text-left">Status</th>
           <th className="py-2 px-4 border-b text-left">Fill Date</th>
-          <th className="py-2 px-4 border-b text-left">BU</th>
         </tr>
         </thead>
         <tbody>
@@ -48,6 +48,7 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
             return (
               <tr key={index} className={`bg-gray-100`}>
                 <td className="py-2 px-4 border-b">{index + 1}</td>
+                <td className="py-2 px-4 border-b">{row.bu}</td>
                 <td className="py-2 px-4 border-b">{row.location_name}</td>
                 <td className="py-2 px-4 border-b">
                   <Link href={`/shelve/grid/${row.shelve_id}`} rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 font-semibold underline">
@@ -62,7 +63,6 @@ const DataTable: React.FC<DataTableProps> = ({ data }) => {
                 <td className="py-2 px-4 border-b">{row.unit}</td>
                 <td className="py-2 px-4 border-b">{row.status}</td>
                 <td className="py-2 px-4 border-b">{moment(row.fill_date).format('DD/MM/YYYY')}</td>
-                <td className="py-2 px-4 border-b">{row.bu}</td>
               </tr>
             );
           })
