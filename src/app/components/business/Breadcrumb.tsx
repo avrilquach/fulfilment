@@ -40,7 +40,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ location_id  }) => {
   if (error) return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>;
   return (
     <div className="flex items-center text-gray-700 font-medium text-lg mb-4">
-      <span>Business Unit I</span>
+      <span>WTC</span>
       <span className="text-gray-400 mx-2">/</span>
       <span>{data[0].name}</span>
     </div>

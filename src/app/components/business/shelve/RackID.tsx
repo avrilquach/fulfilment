@@ -13,6 +13,7 @@ interface BinData {
   status: string;
   fill_date: string;
   bu: string;
+  tat_sku: string;
 }
 
 interface RackIDProps {
@@ -26,15 +27,22 @@ const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
   const [rfidInput, setRfidInput] = useState('');
   const [error, setError] = useState<string | null>(null); // Error state
 
-  const chunkData = (data: BinData[], chunkSize: number) => {
+  const chunkDataByRows = (data: BinData[], rowSizes: number[]) => {
     const result: BinData[][] = [];
-    for (let i = 0; i < data.length; i += chunkSize) {
-      result.push(data.slice(i, i + chunkSize));
-    }
+    let index = 0;
+
+    rowSizes.forEach((rowSize) => {
+      if (index < data.length) {
+        result.push(data.slice(index, index + rowSize));
+        index += rowSize;
+      }
+    });
+
     return result;
   };
 
-  const chunkedData = chunkData(data, 5);
+  const rowSizes = [5, 5, 7, 7, 9, 9]; // Số phần tử cho từng dòng
+  const chunkedData = chunkDataByRows(data, rowSizes);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -64,6 +72,7 @@ const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
       if (response.ok) {
         window.location.href = `/shelve/grid/${rackId}`;
       } else {
+        console.log("result123",result);
         setError(result.message || 'Failed to update status');
         setRfidInput('');
       }
@@ -110,7 +119,7 @@ const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
 
       <div className="space-y-3">
         {chunkedData.map((row, rowIndex) => (
-          <div key={rowIndex} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div key={rowIndex} className="grid grid-cols-9 gap-4">
             {row.map((bin, binIndex) => {
               // Determine background color based on the RFID and status conditions
               const binColor = !bin.container_rfid
@@ -122,33 +131,25 @@ const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
               return (
                 <div
                   key={binIndex}
-                  className={`p-5 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-200 ease-in-out ${binColor}`}
+                  className={`p-2 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-200 ease-in-out ${binColor}`}
                 >
                   {/* Main bin information - positioned on the left */}
                   <div className="flex items-center space-x-3">
-                    <div className="absolute left-0 top-0 w-10 h-10 flex items-center justify-center bg-gray-200 text-black rounded-xl">
+                    <div className="absolute left-0 top-0 w-7 h-7 flex items-center justify-center bg-gray-200 text-black rounded-xl">
                       {/* Bin number on the left side */}
-                      <span className="font-semibold text-lg">{bin.bin_name || `Bin ${binIndex + 1}`}</span>
+                      <span className="font-semibold text-sm">{bin.bin_name || `Bin ${binIndex + 1}`}</span>
                     </div>
                   </div>
 
                   {/* Tooltip (always visible) without absolute positioning */}
                   <div className={`w-full space-y-1 p-3 text-sm text-gray-100 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg ${bin.cm_part_id ? '' : 'opacity-0'}`}>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Part ID:</span>
-                      <span>{bin.cm_part_id}</span>
+                    <div>
+                      <span className="font-semibold">SKU:</span>
+                      <span className={"block"}>{bin.tat_sku}</span>
                     </div>
                     <div>
-                      <span className="font-semibold">Description:</span>
-                      <span>{bin.cm_part_description}</span>
-                    </div>
-                    <div className="flex justify-between">
                       <span className="font-semibold">RFID:</span>
-                      <span>{bin.container_rfid}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-semibold">Qty:</span>
-                      <span>{bin.qty_per_container}</span>
+                      <span className={"block"}>{bin.container_rfid}</span>
                     </div>
                   </div>
                 </div>

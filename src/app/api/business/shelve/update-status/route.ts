@@ -34,7 +34,9 @@ export async function POST(req: Request) {
 
     // Query to check the status of the container in container_management
     const statusQuery = `
-      SELECT status FROM container_management
+      SELECT container_management.*, bin.name 
+      FROM container_management 
+      JOIN bin ON container_management.bin_id = bin.id
       WHERE container_id = ?
     `;
 
@@ -47,7 +49,8 @@ export async function POST(req: Request) {
 
     // Proceed only if the status is "Full"
     if (statusData[0].status !== 'Full') {
-      return NextResponse.json({ message: 'Container is not full; operation aborted' }, { status: 400 });
+      const message = statusData[0].name + " is Empty";
+      return NextResponse.json({ message: message }, { status: 400 });
     }
 
     // Update the container_management table status

@@ -43,7 +43,7 @@ export default function Page() {
       <div className="flex">
         <Sidebar />
         <main className="p-6 w-full lg:w-[80%] bg-gray-50">
-          <h1 className="text-3xl font-bold mb-8 text-gray-800">Business Unit I</h1>
+          <h1 className="text-3xl font-bold mb-8 text-gray-800">WTC</h1>
           {loading ? (
             <div className="flex justify-center items-center">
               <div className="w-16 h-16 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>

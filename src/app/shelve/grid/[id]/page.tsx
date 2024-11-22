@@ -20,6 +20,7 @@ interface Item {
   fill_date: string;
   bu: string;
   location_id: string;
+  tat_sku: string;
 }
 
 export default function ItemsPage() {

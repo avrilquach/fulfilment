@@ -140,6 +140,7 @@ const SkuRfidManager: React.FC<SkuRfidManagerProps> = ({ onSaveComplete }) => {
     }
     setSaving(false); // Kết thúc loading sau khi hoàn tất vòng lặp
     // Call the parent callback to refresh the data
+    setRfidList('');
     onSaveComplete();
   };
 
