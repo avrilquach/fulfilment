@@ -55,6 +55,8 @@ export default function Page() {
                   item.full_count && item.total_empty_full_count
                     ? (item.full_count * 100) / item.total_empty_full_count
                     : 0; // Safely calculate progress
+                // Làm tròn progress tới 2 chữ số sau dấu phẩy
+                const roundedProgress = parseFloat(progress.toFixed(2));
                 return (
                   <div key={index} className="p-6 bg-white border rounded-xl shadow-lg transform transition-all hover:scale-105 hover:shadow-xl">
                     <h2 className="text-xl font-semibold text-gray-900 mb-2">{item.location_name}</h2>
@@ -64,9 +66,9 @@ export default function Page() {
                     <div className="w-full bg-gray-300 rounded-full h-4 overflow-hidden mt-2">
                       <div
                         className="bg-green-500 h-full text-center text-white text-sm font-medium flex items-center justify-center transition-all"
-                        style={{ width: `${progress}%` }}
+                        style={{ width: `${roundedProgress}%` }}
                       >
-                        {progress}%
+                        {roundedProgress}%
                       </div>
                     </div>
                   </div>
