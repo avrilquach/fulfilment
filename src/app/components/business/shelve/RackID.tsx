@@ -41,7 +41,7 @@ const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
     return result;
   };
 
-  const rowSizes = [5, 5, 7, 7, 9, 9]; // Số phần tử cho từng dòng
+  const rowSizes = [ 9, 9,7,7,5,5]; // Số phần tử cho từng dòng
   const chunkedData = chunkDataByRows(data, rowSizes);
 
   useEffect(() => {

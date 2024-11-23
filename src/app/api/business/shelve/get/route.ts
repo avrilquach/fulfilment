@@ -37,7 +37,7 @@ export async function GET(req: Request) {
                                       LEFT JOIN
                                           shelve s ON cm.shelve_id = s.id
                                       LEFT JOIN
-                                       items_management AS im ON bsm.tat_sku = im.supplier_sku WHERE s.id = ? ORDER BY b.id asc`;
+                                       items_management AS im ON bsm.tat_sku = im.supplier_sku WHERE s.id = ? ORDER BY b.position desc`;
 
     // Execute the query with proper parameter binding
     const [rows] = await connection.execute(query, [id]);
