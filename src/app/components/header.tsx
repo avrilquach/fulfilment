@@ -40,7 +40,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-[#232f3e] text-white p-4">
+    <header className="bg-[#FFA500] text-white p-4">
       <div className="flex justify-between items-center">
         {/* Left Side: Company Name and Tagline */}
         <div onClick={handleHome} className={"cursor-pointer"}>
