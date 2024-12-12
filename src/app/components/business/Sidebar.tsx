@@ -34,7 +34,7 @@ const Sidebar = () => {
     <aside className="bg-gray-700 text-gray-200 w-[20%] h-screen p-5 shadow-lg">
       <Link href="/">
         <h2 className={`mb-4 hover:bg-gray-600 p-2 rounded transition duration-200 ${pathname === '/' ? 'bg-blue-600' : ''}`}>
-          WTC
+          TAT
         </h2>
       </Link>
       <nav className="ml-4">

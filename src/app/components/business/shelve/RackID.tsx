@@ -87,14 +87,6 @@ const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
       <div className="bg-gray-200 text-black font-extrabold text-2xl py-3 rounded-lg shadow-md mb-2 text-center transition-colors duration-300 mb-4">
         Rack ID: {rackName}
       </div>
-
-      {/* Display error message if exists */}
-      {error && (
-        <div className="mb-4 text-red-600 font-semibold">
-          {error}
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="mb-4">
           <input
@@ -114,9 +106,12 @@ const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
           Submit
         </button>
       </form>
-
-      <div className="text-center text-sm font-semibold text-gray-600 mb-4 tracking-wider">⬆ EMPTY BINS ⬆</div>
-
+      {/* Display error message if exists */}
+      {error && (
+        <div className="mb-4 text-red-600 font-semibold">
+          {error}
+        </div>
+      )}
       <div className="space-y-3">
         {chunkedData.map((row, rowIndex) => (
           <div key={rowIndex} className="grid grid-cols-9 gap-4">
@@ -144,12 +139,8 @@ const RackID: React.FC<RackIDProps> = ({ rackId, rackName, data }) => {
                   {/* Tooltip (always visible) without absolute positioning */}
                   <div className={`w-full space-y-1 p-3 text-sm text-gray-100 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg ${bin.cm_part_id ? '' : 'opacity-0'}`}>
                     <div>
-                      <span className="font-semibold">SKU:</span>
                       <span className={"block"}>{bin.tat_sku}</span>
-                    </div>
-                    <div>
-                      <span className="font-semibold">RFID:</span>
-                      <span className={"block"}>{bin.container_rfid}</span>
+                      <p className={"truncate w-24"}>{bin.cm_part_description}</p>
                     </div>
                   </div>
                 </div>
